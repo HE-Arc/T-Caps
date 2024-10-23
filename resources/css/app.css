@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.logo-small {
+    max-width: 30%;
+    height: auto;
+}
+
+.middle-logo {
+    max-width: 30%;
+    height: auto;
+}
+
+.background-app {
+    background-color: #1B263B;
+}
