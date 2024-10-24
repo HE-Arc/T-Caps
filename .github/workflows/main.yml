@@ -10,27 +10,18 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Remove old repo
-        run: rm -rf T-Caps
-      - name: Clone repo
-        run: git clone https://github.com/HE-Arc/T-Caps.git
-      - name: Go to repo folder
-        run: cd T-Caps/T-Caps
-      - name: Composer install
-        run: composer install --optimize-autoloader --no-dev
-      - name: Npm install
-        run: npm install
-      - name: Copy .env file
-        run: cp ../../../../../.env .env
-      - name: Generate key
-        run: php artisan key:generate
-      - name: Migrate database
-        run: php artisan migrate
-      - name: Cache php artisan config
-        run: php artisan config:cache
-      - name: Cache php artisan route
-        run: php artisan route:cache
-      - name: Cache php artisan view
-        run: php artisan view:cache
-      - name: Npm run build
-        run: npm run build
+      - name: Deploying app
+        run: |
+          rm -rf /home/laravel/project/T-Caps
+          cd /home/laravel/project
+          git clone https://github.com/HE-Arc/T-Caps.git
+          cd ./T-Caps
+          composer install --optimize-autoloader --no-dev
+          npm install
+          cp ../.env .env
+          php artisan key:generate
+          php artisan migrate
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          npm run build
