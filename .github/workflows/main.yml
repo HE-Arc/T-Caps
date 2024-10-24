@@ -15,9 +15,7 @@ jobs:
       - name: Clone repo
         run: git clone https://github.com/HE-Arc/T-Caps.git
       - name: Go to repo folder
-        run: cd T-Caps
-      - name: Check the current folder
-        run: pwd
+        run: cd T-Caps/T-Caps
       - name: Composer install
         run: composer install --optimize-autoloader --no-dev
       - name: Npm install
