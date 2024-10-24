@@ -18,7 +18,9 @@ jobs:
           cd ./T-Caps
           composer install --optimize-autoloader --no-dev
           npm install
-          cp ../.env .env
+          cd ..
+          cp .env T-Caps/.env
+          cd ./T-Caps
           php artisan key:generate
           php artisan migrate
           php artisan config:cache
