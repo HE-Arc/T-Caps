@@ -1,7 +1,52 @@
 <x-app-layout>
     <h1 class="text-2xl font-bold mb-4">Friends List</h1>
+    <div>
+        <x-nav-link :href="route('friends.create')" :active="request()->routeIs('friends.create')">
+            Add a friend
+        </x-nav-link>
+    </div>
+    <div></div>
 
-    @if($friends->isEmpty())
+    @if(session('error'))
+        <div class="bg-red-500 text-white p-4 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="bg-green-500 text-white p-4 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(!$pendingRequests->isEmpty())
+    @foreach($pendingRequests as $request)
+        @if($request->user_id != Auth::id())
+        <tr class="border-b">
+            <td class="text-center px-4 py-2 border-r">
+                {{ $request->user->name }}
+            </td>
+            <td class="text-center px-4 py-2">
+                <form action="{{ route('friends.accept', $request->id) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+                        Accept
+                    </button>
+                </form>
+                <form action="{{ route('friends.decline', $request->id) }}" method="POST" class="inline">
+                    @csrf
+                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                        Decline
+                    </button>
+                </form>
+            </td>
+        </tr>
+        @endif
+    @endforeach
+    @endif
+
+
+@if($friends->isEmpty())
         <p class="text-gray-600">You have no friends yet.</p>
     @else
         <div class="overflow-x-auto">
