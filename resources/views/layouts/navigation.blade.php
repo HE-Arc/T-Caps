@@ -13,6 +13,11 @@
 
             <!-- Navigation and Settings Dropdown -->
             <div class="flex items-center space-x-4">
+                <div>
+                    <x-nav-link :href="route('friends.index')" :active="request()->routeIs('friends.index')">
+                        Friendlist
+                    </x-nav-link>
+                </div>
                 <!-- Settings Dropdown -->
                 <div>
                     <x-dropdown align="right" width="48">
