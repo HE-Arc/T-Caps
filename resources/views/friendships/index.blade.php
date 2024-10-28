@@ -1,73 +1,40 @@
 <x-app-layout>
-    <h1 class="text-2xl font-bold mb-4">Friends List</h1>
-    <div>
-        <x-nav-link :href="route('friends.create')" :active="request()->routeIs('friends.create')">
-            Add a friend
-        </x-nav-link>
-    </div>
-    <div></div>
+    <x-navbar-friends />
 
-    @if(session('error'))
-        <div class="bg-red-500 text-white p-4 rounded mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded mb-4">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(!$pendingRequests->isEmpty())
-    @foreach($pendingRequests as $request)
-        @if($request->user_id != Auth::id())
-        <tr class="border-b">
-            <td class="text-center px-4 py-2 border-r">
-                {{ $request->user->name }}
-            </td>
-            <td class="text-center px-4 py-2">
-                <form action="{{ route('friends.accept', $request->id) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-                        Accept
-                    </button>
-                </form>
-                <form action="{{ route('friends.decline', $request->id) }}" method="POST" class="inline">
-                    @csrf
-                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                        Decline
-                    </button>
-                </form>
-            </td>
-        </tr>
+    <!-- Décalage du contenu pour éviter la superposition avec la barre rouge -->
+    <div class="pt-10 w-full">
+        @if(session('error'))
+            <div class="bg-red-500 text-white p-4 rounded mb-4 mx-4">
+                {{ session('error') }}
+            </div>
         @endif
-    @endforeach
-    @endif
 
+        @if(session('success'))
+            <div class="bg-green-500 text-white p-4 rounded mb-4 mx-4">
+                {{ session('success') }}
+            </div>
+        @endif
 
-@if($friends->isEmpty())
-        <p class="text-gray-600">You have no friends yet.</p>
-    @else
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-200">
-                <thead>
-                <tr class="bg-gray-100 border-b">
-                    <th scope="col" class="text-center px-4 py-2 border-r text-sm font-medium text-gray-700">Name</th>
-                    <th scope="col" class="text-center px-4 py-2 text-sm font-medium text-gray-700">Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($friends as $friend)
-                    <tr class="border-b">
-                        <td class="text-center px-4 py-2 border-r">
-                            {{-- Affichage du nom de l'ami --}}
-                            {{ $friend->user_id == Auth::id() ? $friend->friend->name : $friend->user->name }}
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
+        <!-- Liste d'amis en format ligne pleine largeur avec séparateurs -->
+        @if($friends->isEmpty())
+            <p class="text-white px-4">You have no friends yet.</p>
+        @else
+            @foreach($friends as $friend)
+                <div class="flex items-center justify-between py-4 border-b border-gray-300 w-full px-4">
+                    <span class="text-white">
+                        {{ $friend->user_id == Auth::id() ? $friend->friend->name : $friend->user->name }}
+                    </span>
+                    <div class="flex space-x-2">
+                        <!-- Boutons d'action en icônes -->
+                        <button>
+                            <img src="{{ asset('source/assets/images/message_friend_icon.png') }}" alt="Message" class="h-10 w-10">
+                        </button>
+                        <button>
+                            <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer" class="h-10 w-10">
+                        </button>
+                    </div>
+                </div>
+            @endforeach
+        @endif
+    </div>
 </x-app-layout>

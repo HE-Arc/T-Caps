@@ -1,28 +1,40 @@
 <x-app-layout>
-    <h1 class="text-2xl font-bold mb-4">Add a Friend</h1>
+    <x-navbar-friends />
+    <div class="pt-16 w-full max-w-md mx-auto">
+        <form action="{{ route('friends.store') }}" method="POST" class="space-y-6 dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            @csrf
 
-    @if(session('success'))
-        <div class="bg-green-500 text-white p-4 rounded mb-4">
-            {{ session('success') }}
-        </div>
-    @elseif(session('error'))
-        <div class="bg-red-500 text-white p-4 rounded mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
+            <div class="space-y-2">
+                <input type="text" name="name" id="name" value="{{ old('name') }}" required
+                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
+                       placeholder="Enter friend's username">
 
-    <form action="{{ route('friends.store') }}" method="POST" class="space-y-4">
-        @csrf
-        <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-            <input type="text" name="name" id="name" required
-                   class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
+                @error('name')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                Add Friend
-            </button>
-        </div>
-    </form>
+            <div>
+                <button type="submit" class="w-full text-white py-2 navBar transition-colors duration-200">
+                    Add Friend
+                </button>
+            </div>
+
+            <!-- Affichage du message de succès ou d'erreur sous le champ de saisie -->
+            <div>
+                @if(session('success'))
+                    <p class="text-green-500 mt-1">
+                        {{ session('success') }}
+                    </p>
+                @endif
+
+                @if(session('error'))
+                    <p class="text-red-500 mt-1">
+                        {{ session('error') }}
+                    </p>
+                @endif
+            </div>
+
+        </form>
+    </div>
 </x-app-layout>

@@ -22,28 +22,35 @@ class FriendshipsController extends Controller
             ->with(['user', 'friend'])
             ->get();
 
-        $pendingRequestsFromFriends = Friendship::where('friend_id', Auth::id())
-            ->where('status', 'pending')
-            ->with('user', 'friend')
-            ->get();
-
-        $pendingRequestsFromUser = Friendship::where('user_id', Auth::id())
-            ->where('status', 'pending')
-            ->with(['user', 'friend'])
-            ->get();
-
         $friends = $friendsFromFriends->merge($friendsFromUser);
-        $pendingRequests = $pendingRequestsFromFriends->merge($pendingRequestsFromUser);
 
         return view('friendships.index', [
             'friends' => $friends,
-            'pendingRequests' => $pendingRequests,
         ]);
     }
 
     public function create()
     {
         return view('friendships.create');
+    }
+
+    public function pending()
+    {
+        $pendingRequestsFromFriends = Friendship::where('friend_id', Auth::id())
+        ->where('status', 'pending')
+        ->with('user', 'friend')
+        ->get();
+
+        $pendingRequestsFromUser = Friendship::where('user_id', Auth::id())
+        ->where('status', 'pending')
+        ->with(['user', 'friend'])
+        ->get();
+
+        $pendingRequests = $pendingRequestsFromFriends->merge($pendingRequestsFromUser);
+
+        return view('friendships.pending', data: [
+            'pendingRequests' => $pendingRequests,
+        ]);
     }
 
     public function store(Request $request)
@@ -55,7 +62,7 @@ class FriendshipsController extends Controller
         $friend = User::where('name', $validated['name'])->first();
 
         if ($friend->id === Auth::id()) {
-            return redirect()->route('friends.index')->with('error', 'You cannot add yourself.');
+            return back()->with('error', 'You cannot add yourself.');
         }
 
         $friendshipExists = Friendship::where(function ($query) use ($friend) {
@@ -67,7 +74,7 @@ class FriendshipsController extends Controller
         })->exists();
 
         if ($friendshipExists) {
-            return redirect()->route('friends.index')->with('error', 'You are already friends or a request is pending.');
+            return back()->with('error', 'You are already friends or a request is pending.');
         }
 
         Friendship::create([
@@ -76,7 +83,7 @@ class FriendshipsController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('friends.index')->with('success', 'Friend request sent!');
+        return back()->with('success', 'Friend request sent !');
     }
 
     public function accept(Request $request, $friendship_id)
@@ -86,10 +93,10 @@ class FriendshipsController extends Controller
         if ($friendship && $friendship->status === 'pending') {
             // Met à jour le statut directement
             $friendship->update(['status' => 'accepted']);
-            return redirect()->route('friends.index')->with('success', 'Friend request accepted!');
+            return back()->with('success', 'Friend request accepted!');
         }
 
-        return redirect()->route('friends.index')->with('error', 'Could not accept the friend request.');
+        return back()->with('error', 'Could not accept the friend request.');
     }
 
     public function decline(Request $request, $friendship_id)
@@ -98,21 +105,13 @@ class FriendshipsController extends Controller
 
         if ($friendship) {
             $friendship->delete();
-            return redirect()->route('friends.index')->with('success', 'Friend request declined!');
+            return back()->with('success', 'Friend request declined!');
         }
 
-        return redirect()->route('friends.index')->with('error', 'Could not decline the friend request.');
+        return back()->with('error', 'Could not decline the friend request.');
     }
 
     public function removeFriend(Request $request)
-    {
-    }
-
-    public function declineFriend(Request $request)
-    {
-    }
-
-    public function acceptFriend(Request $request)
     {
     }
 }

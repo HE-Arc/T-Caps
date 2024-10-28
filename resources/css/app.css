@@ -20,3 +20,11 @@
 .navBar{
     background-color: #415A77;
 }
+
+.btn-inactive{
+    background-color: #778DA9;
+}
+
+.btn-active{
+    background-color: #1B263B;
+}
