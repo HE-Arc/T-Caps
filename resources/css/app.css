@@ -28,3 +28,8 @@
 .btn-active{
     background-color: #1B263B;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Masque la barre de défilement */
+}
+

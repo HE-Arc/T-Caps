@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="navBar w-full h-full bg-gray-800 text-white flex flex-col items-center justify-between py-6">
+<nav x-data="{ open: false }" class="navBar border-r border-black w-full h-full text-white flex flex-col items-center justify-between py-6">
     <!-- Liens en haut -->
     <div class="flex flex-col items-center space-y-4">
         <!-- Lien vers Dashboard -->
