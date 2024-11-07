@@ -1,5 +1,5 @@
 
-<div class="absolute top-0 left-0 w-full h-12 flex items-center justify-between px-4 navBar">
+<div class="absolute top-0 left-0 w-full h-12 flex items-center justify-between px-4 secondary-background-app">
     <div class="flex items-center space-x-4">
         <a href="{{ route('friends.index') }}" class="text-white font-semibold py-1 px-3 rounded-full
         {{ Route::currentRouteName() === 'friends.index' ? 'btn-active' : 'btn-inactive' }}">

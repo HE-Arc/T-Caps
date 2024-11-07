@@ -17,7 +17,7 @@
     background-color: #1B263B;
 }
 
-.navBar{
+.secondary-background-app {
     background-color: #415A77;
 }
 
@@ -33,3 +33,10 @@
     display: none; /* Masque la barre de défilement */
 }
 
+.tertiary-background-app {
+    background-color: #778DA9;
+}
+
+.messagesBackground {
+    background-image: url('../../public/source/assets/images/messageBackground.png');
+}

@@ -15,7 +15,7 @@
             </div>
 
             <div>
-                <button type="submit" class="w-full text-white py-2 navBar transition-colors duration-200">
+                <button type="submit" class="w-full text-white py-2 secondary-background-app transition-colors duration-200">
                     Add Friend
                 </button>
             </div>
