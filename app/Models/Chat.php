@@ -9,7 +9,7 @@ class Chat extends Model
 {
     use HasFactory;
 
-    protected $table = 'chat';
+    protected $table = 'chats';
 
     /**
      * Users who participate in the chat

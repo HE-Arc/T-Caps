@@ -22,7 +22,7 @@ class Message extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function chat()
+    public function chats()
     {
         return $this->belongsTo(Chat::class);
     }
@@ -32,7 +32,7 @@ class Message extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function users()
     {
         return $this->belongsTo(User::class);
     }
