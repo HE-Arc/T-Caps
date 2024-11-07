@@ -37,14 +37,14 @@ class FriendshipsController extends Controller
     public function pending()
     {
         $pendingRequestsFromFriends = Friendship::where('friend_id', Auth::id())
-        ->where('status', 'pending')
-        ->with('user', 'friend')
-        ->get();
+            ->where('status', 'pending')
+            ->with('user', 'friend')
+            ->get();
 
         $pendingRequestsFromUser = Friendship::where('user_id', Auth::id())
-        ->where('status', 'pending')
-        ->with(['user', 'friend'])
-        ->get();
+            ->where('status', 'pending')
+            ->with(['user', 'friend'])
+            ->get();
 
         $pendingRequests = $pendingRequestsFromFriends->merge($pendingRequestsFromUser);
 
@@ -111,7 +111,21 @@ class FriendshipsController extends Controller
         return back()->with('error', 'Could not decline the friend request.');
     }
 
-    public function removeFriend(Request $request)
+    public function destroy($friend)
     {
-    }
+        $friendship = Friendship::where(function ($query) use ($friend) {
+            $query->where('user_id', Auth::id())
+                  ->where('friend_id', $friend);
+        })->orWhere(function ($query) use ($friend) {
+            $query->where('user_id', $friend)
+                  ->where('friend_id', Auth::id());
+        })->first();
+    
+        if ($friendship) {
+            $friendship->delete();
+            return back()->with('success', 'Friend removed successfully!');
+        }
+    
+        return back()->with('error', 'Could not find the friend to remove.');
+    }    
 }

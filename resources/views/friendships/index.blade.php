@@ -26,12 +26,18 @@
                     </span>
                     <div class="flex space-x-2">
                         <!-- Boutons d'action en icônes -->
-                        <button>
-                            <img src="{{ asset('source/assets/images/message_friend_icon.png') }}" alt="Message" class="h-10 w-10">
-                        </button>
-                        <button>
-                            <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer" class="h-10 w-10">
-                        </button>
+                         
+                            <button>
+                                <img src="{{ asset('source/assets/images/message_friend_icon.png') }}" alt="Message" class="h-10 w-10">
+                            </button>
+                            
+                            <form action="{{ route('friends.destroy', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">
+                                    <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer" class="h-10 w-10">
+                                </button>
+                            </form>
                     </div>
                 </div>
             @endforeach
