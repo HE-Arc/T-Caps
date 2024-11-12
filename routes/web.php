@@ -28,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/friends/pending', [FriendshipsController::class, 'pending'])->name('friends.pending');
     Route::post('/friends/{friendship_id}/accept', [FriendshipsController::class, 'accept'])->name('friends.accept');
     Route::post('/friends/{friendship_id}/decline', [FriendshipsController::class, 'decline'])->name('friends.decline');
-
+    Route::post('/friends/{friend}/block', [FriendshipsController::class, 'block'])->name('friends.block');
 
 
 });

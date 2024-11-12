@@ -38,6 +38,13 @@
                                     <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer" class="h-10 w-10">
                                 </button>
                             </form>
+
+                            <form action="{{ route('friends.block', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to block this user?');">
+                                @csrf
+                                <button type="submit">
+                                    <img src="{{ asset('source/assets/images/block_icon.png') }}" alt="Block" class="h-10 w-10">
+                                </button>
+                            </form>
                     </div>
                 </div>
             @endforeach

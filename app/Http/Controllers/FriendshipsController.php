@@ -74,7 +74,7 @@ class FriendshipsController extends Controller
         })->exists();
 
         if ($friendshipExists) {
-            return back()->with('error', 'You are already friends or a request is pending.');
+            return back()->with('error', 'You are already friends, blocked or a request is pending.');
         }
 
         Friendship::create([
@@ -115,17 +115,50 @@ class FriendshipsController extends Controller
     {
         $friendship = Friendship::where(function ($query) use ($friend) {
             $query->where('user_id', Auth::id())
-                  ->where('friend_id', $friend);
+                ->where('friend_id', $friend);
         })->orWhere(function ($query) use ($friend) {
             $query->where('user_id', $friend)
-                  ->where('friend_id', Auth::id());
+                ->where('friend_id', Auth::id());
         })->first();
-    
+
         if ($friendship) {
             $friendship->delete();
             return back()->with('success', 'Friend removed successfully!');
         }
-    
+
         return back()->with('error', 'Could not find the friend to remove.');
-    }    
+    }
+
+    public function block($friend)
+    {
+        $friend = User::findOrFail($friend);
+
+        if ($friend->id === Auth::id()) {
+            return back()->with('error', 'You cannot block yourself.');
+        }
+
+        $friendship = Friendship::where(function ($query) use ($friend) {
+            $query->where('user_id', auth()->id())
+                ->where('friend_id', $friend->id);
+        })->orWhere(function ($query) use ($friend) {
+            $query->where('user_id', $friend->id)
+                ->where('friend_id', auth()->id());
+        })->first();
+
+        if ($friendship) {
+            if ($friendship->status === 'blocked') {
+                return back()->with('error', 'This user is already blocked.');
+            }
+            $friendship->update(['status' => 'blocked']);
+            return back()->with('success', 'User blocked successfully!');
+        } else {
+            // Create a new friendship with 'blocked' status if no existing relation is found
+            Friendship::create([
+                'user_id' => auth()->id(),
+                'friend_id' => $friend->id,
+                'status' => 'blocked',
+            ]);
+            return back()->with('success', 'User blocked successfully!');
+        }
+    }
 }
