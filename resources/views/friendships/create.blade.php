@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-navbar-friends />
+    <x-friendships.navbar-friends />
     <div class="pt-10 w-full max-w-md mx-auto">
         <form action="{{ route('friends.store') }}" method="POST" class="space-y-6 dark:bg-gray-800 p-6 rounded-lg shadow-md">
             @csrf

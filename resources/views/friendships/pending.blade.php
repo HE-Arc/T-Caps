@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-navbar-friends />
+    <x-friendships.navbar-friends />
 
     <!-- Décalage du contenu pour éviter la superposition avec la barre rouge -->
     <div class="pt-10 w-full">
