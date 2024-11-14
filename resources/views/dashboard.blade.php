@@ -1,9 +1,9 @@
 <x-app-layout>
-    <div class="py-12  background-app">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="p-6 text-gray-900 dark:text-gray-100">
-                    {{ __("MESSAGING AREA") }}
-                </div>
-        </div>
+    <div class="h-full flex background-app">
+        <!-- Inclure le composant de la barre de discussions -->
+        <x-messaging.discussion-sidebar />
+
+        <!-- Inclure le composant de la zone de chat -->
+        <x-messaging.chat-area />
     </div>
 </x-app-layout>

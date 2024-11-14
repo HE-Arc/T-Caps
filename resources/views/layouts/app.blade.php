@@ -14,15 +14,13 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased">
-    <div class="min-h-screen flex">
-        <!-- Barre de navigation latérale -->
-        <aside class="fixed h-full w-20 bg-gray-800 text-white flex flex-col border-r border-black">
+<body class="font-sans antialiased background-app">
+    <div class="h-screen flex">
+        <aside class="h-full w-20 text-white flex flex-col">
             @include('layouts.navigation')
         </aside>
 
-        <!-- Contenu principal avec `ml-20` pour laisser la place à l'aside -->
-        <main class="flex-1 ml-20 p-6 bg-white background-app relative">
+        <main class="flex-1 p-0 relative">
             {{ $slot }}
         </main>
     </div>
