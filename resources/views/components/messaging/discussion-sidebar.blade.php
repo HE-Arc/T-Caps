@@ -7,157 +7,16 @@
                 <div>+</div>
             </div>
         </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
+        @foreach ($discussions as $discussion)
+            <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
+                <img src="{{ asset('source/assets/images/profile.png') }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
+                <div class="flex-1">
+                    <div class="font-bold">{{$discussion->name}}</div>
+                    <div class="text-sm text-gray-400 whitespace-nowrap">
+                        {{$discussion->messages->first()->message}}
+                    </div>
                 </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
-
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <img src="source/assets/images/profile.png" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
-            <div class="flex-1">
-                <div class="font-bold">Eddy</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    Un autre message très long long message dernier message envoyée
-                </div>
-            </div>
-        </li>
+            </li>
+        @endforeach
     </ul>
 </div>

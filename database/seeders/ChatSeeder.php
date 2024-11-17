@@ -26,5 +26,18 @@ class ChatSeeder extends Seeder
                 'message' => 'This is test message number ' . $index . ' in chat ' . $chat1->name,
             ]);
         }
+
+        $chat2 = Chat::create([
+            'name' => 'Test Chat 2',
+        ]);
+
+        $chat2->users()->attach([$allUsers->first()->id, $allUsers->last()->id]);
+
+        foreach (range(1, 10) as $index) {
+            $chat2->messages()->create([
+                'user_id' => $allUsers->random()->id,
+                'message' => 'This is test message number ' . $index . ' in chat ' . $chat2->name,
+            ]);
+        }
     }
 }
