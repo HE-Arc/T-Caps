@@ -4,7 +4,7 @@
             class="rounded-full secondary-background-app p-2 flex items-center justify-center">
             <img src="{{asset('source/assets/images/add.png')}}" alt="Icone" class="h-6 w-6">
         </button>
-        <input type="text" id="message-content" class="flex-1 secondary-background-app text-white border-none rounded-3xl p-2 ml-2 mr-2">
+        <input type="text" id="message-content" class="flex-1 secondary-background-app text-white border-none rounded-3xl p-2 ml-2 mr-2" onkeypress="if(event.key === 'Enter') { sendMessage() }">
         <button onclick="sendMessage()"
             class="rounded-full secondary-background-app p-2 flex items-center justify-center">
             <img src="{{asset('source/assets/images/send.png')}}" alt="Icone" class="h-6 w-6">

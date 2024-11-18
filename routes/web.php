@@ -8,7 +8,8 @@ use App\Http\Controllers\ChatController;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return view('dashboard');
+        // call the controller ChatController method index
+        return redirect()->route('dashboard');
     }
     else {
         return view('auth.login');
@@ -19,6 +20,8 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ChatController::class, 'index'])->name('dashboard');
+    Route::get('/chat/{discussion}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/chat/{discussion}/messages', [ChatController::class, 'storeMessage']);
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

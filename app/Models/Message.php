@@ -12,7 +12,7 @@ class Message extends Model
     protected $table = 'messages';
 
     protected $fillable = [
-        'content',
+        'message',
         'chat_id',
         'user_id',
     ];

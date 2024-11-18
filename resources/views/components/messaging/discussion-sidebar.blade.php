@@ -8,7 +8,7 @@
             </div>
         </li>
         @foreach ($discussions as $discussion)
-            <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
+            <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer" onclick="loadChat({{ $discussion->id }})">
                 <img src="{{ asset('source/assets/images/profile.png') }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3">
                 <div class="flex-1">
                     <div class="font-bold">{{$discussion->name}}</div>
