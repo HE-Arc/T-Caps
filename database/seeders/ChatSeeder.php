@@ -24,6 +24,12 @@ class ChatSeeder extends Seeder
             $chat1->messages()->create([
                 'user_id' => $allUsers->random()->id,
                 'message' => 'This is test message number ' . $index . ' in chat ' . $chat1->name,
+                'media_url' => match ($index) {
+                    8 => 'test.JPEG',
+                    9 => 'test.mp4',
+                    10 => 'test.mp3',
+                    default => null,
+                },
             ]);
         }
 

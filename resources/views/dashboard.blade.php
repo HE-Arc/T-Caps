@@ -45,10 +45,45 @@
                                 ${message.message}
                             </p>
                         </div>`;
-                    messagesContainer.innerHTML += messageElement;
-                });
+                    if (!message.media_url && message.opening_date < new Date().toISOString()){
+                        messagesContainer.innerHTML += messageElement;
+                    } else if (message.opening_date < new Date().toISOString()) {
+                        let mediaElement = `
+                            <div class="flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2">
+                                <div class="max-w-[45%] ${isCurrentUser ? 'rounded-tl-lg' : 'rounded-tr-lg'} rounded-bl-lg rounded-br-lg">`;
 
-                scrollToBottom();
+                        if (message.media_url.endsWith('.mp4')) {
+                            mediaElement += `
+                                <video controls preload="none" class="w-full ${isCurrentUser ? 'rounded-tl-lg' : 'rounded-tr-lg'}" id="video-${message.id}" poster="{{ asset('source/assets/images/') }}/video.png">
+                                    <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
+                                </video>`;
+                        } else if (message.media_url.endsWith('.mp3')) {
+                            mediaElement += `
+                                <audio preload="none" controls class="w-full ${isCurrentUser ? 'rounded-tl-lg' : 'rounded-tr-lg'}">
+                                    <source src="{{ asset('source/media/') }}/${message.media_url}" type="audio/mpeg">
+                                    Your browser does not support the audio element.
+                                </audio>`;
+                        } else {
+                            mediaElement += `
+                                <img src="{{ asset('source/media/') }}/${message.media_url}" class="w-full ${isCurrentUser ? 'rounded-tl-lg' : 'rounded-tr-lg'}">`;
+                        }
+
+                        mediaElement += `
+                                    <p class="secondary-background-app text-white p-2 rounded-bl-lg rounded-br-lg">
+                                        ${message.message}
+                                    </p>
+                                </div>
+                            </div>`;
+                        messagesContainer.innerHTML += mediaElement;
+                    }
+                });
+                // Wait for the all the medias (images and video) to be loaded before scrolling to the bottom
+                const mediaElements = document.querySelectorAll('img, video');
+                mediaElements.forEach(mediaElement => {
+                    mediaElement.addEventListener('load', () => {
+                        scrollToBottom();
+                    });
+                });
             }
         })
         .catch(error => console.error('Error:', error));
