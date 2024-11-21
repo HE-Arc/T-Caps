@@ -2,8 +2,20 @@
     <div class="h-full flex background-app">
         <!-- Inclure le composant de la barre de discussions -->
         <x-messaging.discussion-sidebar :discussions="$discussions" />
-        <!-- Inclure le composant de la zone de chat -->
-        <x-messaging.chat-area />
+
+        <!-- Zone de chat avec message par défaut -->
+        <div id="chat-placeholder" class="flex-1 flex items-center justify-center text-white bg-gray-800">
+            <x-messaging.home-section />
+        </div>
+
+        <!-- Section de chat (initialement cachée) -->
+        <div id="chat-area" class="flex-1 background-app flex flex-col h-full relative hidden">
+            <x-messaging.header />
+
+            <x-messaging.messages />
+
+            <x-messaging.chatbar />
+        </div>
     </div>
 </x-app-layout>
 
@@ -15,7 +27,12 @@
     // Storing the last message ID
     let lastMessageId = null;
 
+    // Fonction pour charger la discussion
     function loadChat(chatId) {
+        // Cacher le texte par défaut et afficher la chat-area
+        document.getElementById('chat-placeholder').style.display = 'none'; // Cacher le texte
+        document.getElementById('chat-area').style.display = 'flex';  // Afficher la chat-area
+
         // Update the current discussion ID
         currentChatId = chatId;
 
@@ -37,6 +54,7 @@
                 // Clear the container
                 messagesContainer.innerHTML = '';
 
+                // Parcours les messages et les ajoute au conteneur
                 data.messages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
                     const messageElement = `
@@ -77,18 +95,14 @@
                         messagesContainer.innerHTML += mediaElement;
                     }
                 });
-                // Wait for the all the medias (images and video) to be loaded before scrolling to the bottom
-                const mediaElements = document.querySelectorAll('img, video');
-                mediaElements.forEach(mediaElement => {
-                    mediaElement.addEventListener('load', () => {
-                        scrollToBottom();
-                    });
-                });
+
+                scrollToBottom();
             }
         })
         .catch(error => console.error('Error:', error));
     }
 
+    // Fonction pour démarrer la mise à jour automatique des messages
     function startAutoRefresh(intervalTime = 500) {
         // Remove the previous interval if it exists
         if (interval) clearInterval(interval);
@@ -105,6 +119,7 @@
     // Start the auto refresh
     startAutoRefresh();
 
+    // Fonction pour envoyer un message
     function sendMessage() {
         const messageContent = document.getElementById('message-content').value;
         if (!messageContent) return;
@@ -128,6 +143,7 @@
         .catch(error => console.error('Error:', error));
     }
 
+    // Fonction pour faire défiler les messages jusqu'en bas
     function scrollToBottom() {
         const messagesContainer = document.getElementById('messages');
         if (messagesContainer) {

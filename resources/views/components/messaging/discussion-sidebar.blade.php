@@ -1,7 +1,6 @@
 <div class="w-1/5 secondary-background-app text-white border-r border-black overflow-y-auto h-full scrollbar-hide">
     <ul>
         <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2">
-            <!-- Utilisation de w-full pour s'assurer que le conteneur prend toute la largeur -->
             <div class="flex justify-between text-white w-full">
                 <div>Discussions</div>
                 <div>+</div>
