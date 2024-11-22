@@ -27,12 +27,7 @@ class Message extends Model
         return $this->belongsTo(Chat::class);
     }
 
-    /**
-     * User who sent the message
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function users()
+    public function user()  // Utiliser 'user()' au lieu de 'users()'
     {
         return $this->belongsTo(User::class);
     }
