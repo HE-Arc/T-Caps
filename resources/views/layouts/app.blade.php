@@ -20,7 +20,7 @@
             @include('layouts.navigation')
         </aside>
 
-        <main class="flex-1 p-0 relative">
+        <main class="flex-1 p-0 overflow-y-auto relative">
             {{ $slot }}
         </main>
     </div>
