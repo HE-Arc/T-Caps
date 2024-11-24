@@ -24,7 +24,7 @@
     let isLoading = false; // Flag pour éviter les chargements simultanés
 
     // Fonction pour charger la discussion
-    function loadChat(chatId, discussionName, newOpening = true) {
+    function loadChat(chatId, discussionName, discussionPicture, newOpening = true) {
         if (isLoading) return; // Empêcher les requêtes simultanées
         isLoading = true;
 
@@ -39,6 +39,9 @@
         if (newOpening) {
             const headerTitle = document.querySelector('.headerTitle');
             if (headerTitle) headerTitle.textContent = discussionName;
+
+            const headerImage = document.querySelector('.headerImage');
+            if(headerImage) headerImage.src = discussionPicture;
         }
 
         fetch(`/chat/${chatId}/messages`, {
@@ -122,7 +125,7 @@
     function startAutoRefresh(intervalTime = 3000) {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
-            if (currentChatId) loadChat(currentChatId, null, false);
+            if (currentChatId) loadChat(currentChatId, null, null, false);
         }, intervalTime);
     }
 

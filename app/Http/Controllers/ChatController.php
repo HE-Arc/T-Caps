@@ -13,13 +13,30 @@ class ChatController extends Controller
     public function index()
     {
         $discussions = auth()->user()->chats()
-            ->with([
-                'messages' => function ($query) {
-                    $query->latest()->limit(1);
-                }
-            ])
-            ->latest()
-            ->get();
+        ->with(['messages' => function ($query) {
+            $query->latest()->limit(1);
+        }, 'members']) // Assure-toi que la relation members est chargée
+        ->latest()
+        ->get()
+        ->map(function ($discussion) {
+            // Vérifie si la discussion est un chat individuel (2 membres)
+            if ($discussion->members->count() == 2) {
+                // Détermine l'image en fonction des membres
+                $otherMember = $discussion->members->first()->id == auth()->id()
+                    ? $discussion->members->skip(1)->first()
+                    : $discussion->members->first();
+
+                // Ajoute l'image sélectionnée comme propriété de la discussion
+                $discussion->discussionPicture = $otherMember->image
+                    ? asset('storage/' . $otherMember->image)
+                    : asset('source/assets/avatar/avatar.png');
+            } else {
+                // Utilise une image par défaut pour les groupes
+                $discussion->discussionPicture = asset('source/assets/images/group.png');
+            }
+
+            return $discussion;
+        });
 
         // Récupérer les amis acceptés
         $friends = Friendship::where(function ($query) {

@@ -2,7 +2,7 @@
     <x-friendships.navbar-friends />
 
     <!-- Décalage du contenu pour éviter la superposition avec la barre rouge -->
-    <div class="pt-10 w-full">
+    <div class="mt-4 pt-10 w-full">
         @if(session('error'))
             <div class="bg-red-500 text-white p-4 rounded mb-4 mx-4">
                 {{ session('error') }}
