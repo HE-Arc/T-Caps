@@ -6,40 +6,46 @@
                     Discussions
                 </div>
                 <div>
-                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')" class="flex items-center justify-center">
+                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'create-chat-modal')" class="flex items-center justify-center">
                         <img src="{{ asset('source/assets/images/add.png') }}" alt="Add button" class="h-6 w-6">
                     </button>
 
-                    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
-                        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+                    <x-modal name="create-chat-modal" focusable>
+                        <form method="post" action="{{ route('chats.store') }}" class="p-6" x-data="chatForm()" x-on:submit.prevent="validateForm">
                             @csrf
-                            @method('delete')
 
-                            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-                                {{ __('Are you sure you want to delete your account?') }}
-                            </h2>
-
-                            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
-                            </p>
-
-                            <div class="mt-6">
-                                <x-input-label for="password" value="{{ __('Password') }}" class="sr-only" />
-
-                                <x-text-input id="password" name="password" type="password" class="mt-1 block w-3/4"
-                                    placeholder="{{ __('Password') }}" />
-
-                                <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+                            <!-- Champ pour le nom du chat -->
+                            <div class="mb-4">
+                                <x-input-label for="chat-name" value="Nom de la discussion" />
+                                <x-text-input id="chat-name" name="chat_name" type="text" class="block w-full mt-1" required x-model="chatName" />
+                                <p x-show="errors.chatName" class="text-red-500 text-sm mt-1">Le nom de la discussion est requis.</p>
                             </div>
 
+                            <!-- Liste des amis avec des cases à cocher -->
+                            <div class="mb-4">
+                                <p class="font-medium text-white">Sélectionnez le/les amis à ajouter à la discussion</p>
+                                <div class="mt-2 overflow-y-auto max-h-48 scrollbar-hide rounded p-2">
+                                    @foreach($friends as $friend)
+                                        <div class="flex items-center justify-between mb-2 p-2 rounded hover:bg-gray-700 transition-colors">
+                                            <div class="flex items-center">
+                                                <img src="{{ asset('source/assets/images/profile.png') }}" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
+                                                <span class="text-white font-medium">{{ $friend->name }}</span>
+                                            </div>
+                                            <input type="checkbox" name="friends[]" value="{{ $friend->id }}" class="h-5 w-5 bg-gray-400 rounded-full focus:ring-0 border-none checked:bg-gray-500" x-model="selectedFriends">
+                                        </div>
+                                    @endforeach
+                                    <p x-show="errors.friends" class="text-red-500 text-sm mt-1">Sélectionnez au moins un ami.</p>
+                                </div>
+                            </div>
+
+                            <!-- Boutons d'action -->
                             <div class="mt-6 flex justify-end">
                                 <x-secondary-button x-on:click="$dispatch('close')">
-                                    {{ __('Cancel') }}
+                                    Annuler
                                 </x-secondary-button>
-
-                                <x-danger-button class="ms-3">
-                                    {{ __('Delete Account') }}
-                                </x-danger-button>
+                                <x-primary-button class="ml-3">
+                                    Créer la discussion
+                                </x-primary-button>
                             </div>
                         </form>
                     </x-modal>
@@ -54,10 +60,34 @@
                 <div class="flex-1">
                     <div class="font-bold">{{ $discussion->name }}</div>
                     <div class="text-sm text-gray-400 whitespace-nowrap">
-                        {{ $discussion->messages->first()->message }}
+                        @if ($discussion->messages->first())
+                            {{ $discussion->messages->first()->message }}
+                        @endif
                     </div>
                 </div>
             </li>
         @endforeach
     </ul>
 </div>
+
+
+<script>
+    function chatForm() {
+        return {
+            chatName: '',
+            selectedFriends: [],
+            errors: {
+                friends: false,
+            },
+            validateForm() {
+                // Réinitialise l'erreur des amis
+                this.errors.friends = this.selectedFriends.length === 0;
+
+                if (!this.errors.friends) {
+                    // Soumet le formulaire si la validation passe
+                    this.$el.submit();
+                }
+            }
+        }
+    }
+</script>

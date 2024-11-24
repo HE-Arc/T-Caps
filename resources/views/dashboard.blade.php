@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="h-full flex background-app">
         <!-- Inclure le composant de la barre de discussions -->
-        <x-messaging.discussion-sidebar :discussions="$discussions" />
+        <x-messaging.discussion-sidebar :discussions="$discussions" :friends="$friends"/>
 
         <!-- Zone de chat avec message par défaut -->
         <div id="chat-placeholder" class="flex-1 flex items-center justify-center text-white bg-gray-800">
