@@ -113,7 +113,13 @@
                     }
                 });
 
-                scrollToBottom(); // Faire défiler jusqu'en bas
+                // Wait for the all the medias (images and video) to be loaded before scrolling to the bottom
+                const mediaElements = document.querySelectorAll('img, video');
+                mediaElements.forEach(mediaElement => {
+                    mediaElement.addEventListener('load', () => {
+                        scrollToBottom();
+                    });
+                });
             })
             .catch(error => console.error('Erreur:', error))
             .finally(() => {
