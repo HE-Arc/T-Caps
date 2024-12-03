@@ -20,17 +20,22 @@
 <script>
     let currentChatId = null;
     let interval = null;
-    let lastMessageId = null;
-    let isLoading = false; // Flag pour éviter les chargements simultanés
+    let allMessages = [];
 
     // Fonction pour charger la discussion
     function loadChat(chatId, discussionName, discussionPicture, newOpening = true) {
-        if (isLoading) return; // Empêcher les requêtes simultanées
-        isLoading = true;
+        const messagesContainer = document.getElementById('messages');
 
         // Masquer le placeholder et afficher la zone de chat
         document.getElementById('chat-placeholder').style.display = 'none';
         document.getElementById('chat-area').style.display = 'flex';
+
+        // Vérifier si la discussion est déjà chargée
+        if (currentChatId !== chatId) {
+            // Réinitialiser la liste de tout les messages
+            allMessages = [];
+            document.getElementById('messages').innerHTML = '';
+        }
 
         // Mettre à jour l'ID de la discussion actuelle
         currentChatId = chatId;
@@ -53,36 +58,39 @@
             })
             .then(response => response.json())
             .then(data => {
-                const messagesContainer = document.getElementById('messages');
-                const newLastMessageId = data.messages.length > 0 ? data.messages[data.messages.length - 1].id :
-                    null;
-
-                if (newLastMessageId === lastMessageId) {
-                    isLoading = false; // Aucun nouveau message
+                let newMessages = [];
+                // Si la liste de tout les messages correspond à la liste actuelle
+                if (JSON.stringify(allMessages) === JSON.stringify(data.messages)) {
                     return;
+                } else if (allMessages.length === 0) {
+                    // Si la liste de tout les messages est vide
+                    newMessages = data.messages;
+                } else {
+                    // Récupérer la liste des messages qui ne sont pas déjà affichés
+                    newMessages = data.messages.filter(message => !allMessages.some(m => m.id === message.id));
                 }
 
-                lastMessageId = newLastMessageId; // Mettre à jour l'ID du dernier message
-                messagesContainer.innerHTML = ''; // Vider le conteneur
+                // Récupérer la position dans le scroll et vérifier si on est tout en bas
+                // Utile pour savoir si on doit défiler jusqu'en bas après l'ajout des nouveaux messages ou si l'utilisateur est entrain de consulter des anciens messages
+                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
 
                 // Parcourir les messages et les ajouter
-                data.messages.forEach(message => {
+                newMessages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
-                    let messageElement = `
-            <div class="flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2">
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
+                    messageElement.innerHTML = `
                 <!-- Encadré bleu avec le user_id en première ligne -->
                 <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                     <!-- Affichage du user_id dans l'encadré bleu -->
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
                     ${message.message}
-                </p>
-            </div>`;
+                </p>`;
 
                     // Gestion des médias
-                    if (message.media_url && message.opening_date < new Date().toISOString()) {
+                    if (message.media_url) {
                         let mediaElement =
                             `
-            <div class="flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2">
                 <div class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>`;
                         if (message.media_url.endsWith('.mp4')) {
@@ -105,30 +113,35 @@
                         <p class="mt-3">
                             ${message.message}
                         </p>
-                    </div>
-                </div>`;
-                        messagesContainer.innerHTML += mediaElement;
-                    } else {
-                        messagesContainer.innerHTML += messageElement;
+                    </div>`;
+                    messageElement.innerHTML = mediaElement;
                     }
+                    messagesContainer.appendChild(messageElement);
                 });
 
-                // Wait for the all the medias (images and video) to be loaded before scrolling to the bottom
+                // Mettre à jour la liste de tout les messages
+                allMessages = data.messages;
+
+                // Attendre que tout les médias soient chargés avant de faire défiler
                 const mediaElements = document.querySelectorAll('img, video');
                 mediaElements.forEach(mediaElement => {
                     mediaElement.addEventListener('load', () => {
-                        scrollToBottom();
+                        if (isAtBottom) {
+                            scrollToBottom()
+                        };
                     });
                 });
+
+                // Faire défiler jusqu'en bas (utile si il y a pas de médias)
+                if (isAtBottom) {
+                    scrollToBottom()
+                };
             })
             .catch(error => console.error('Erreur:', error))
-            .finally(() => {
-                isLoading = false; // Libérer le flag après chargement
-            });
     }
 
     // Fonction pour démarrer la mise à jour automatique des messages
-    function startAutoRefresh(intervalTime = 3000) {
+    function startAutoRefresh(intervalTime = 500) {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
             if (currentChatId) loadChat(currentChatId, null, null, false);
