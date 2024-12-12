@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="h-full flex background-app">
         <!-- Inclure le composant de la barre de discussions -->
-        <x-messaging.discussion-sidebar :discussions="$discussions" />
+        <x-messaging.discussion-sidebar :discussions="$discussions" :friends="$friends"/>
 
         <!-- Zone de chat avec message par défaut -->
         <div id="chat-placeholder" class="flex-1 flex items-center justify-center text-white bg-gray-800">
@@ -20,13 +20,11 @@
 <script>
     let currentChatId = null;
     let interval = null;
-    let lastMessageId = null;
-    let isLoading = false; // Flag pour éviter les chargements simultanés
+    let allMessages = [];
 
     // Fonction pour charger la discussion
-    function loadChat(chatId, discussionName, newOpening = true) {
-        if (isLoading) return; // Empêcher les requêtes simultanées
-        isLoading = true;
+    function loadChat(chatId, discussionName, discussionPicture, newOpening = true) {
+        const messagesContainer = document.getElementById('messages');
 
         // Masquer le placeholder et afficher la zone de chat
         document.getElementById('chat-placeholder').style.display = 'none';
@@ -50,86 +48,107 @@
         if (newOpening) {
             const headerTitle = document.querySelector('.headerTitle');
             if (headerTitle) headerTitle.textContent = discussionName;
+
+            const headerImage = document.querySelector('.headerImage');
+            if(headerImage) headerImage.src = discussionPicture;
         }
 
-        // Charger les messages
         fetch(`/chat/${chatId}/messages`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            const messagesContainer = document.getElementById('messages');
-            const newLastMessageId = data.messages.length > 0 ? data.messages[data.messages.length - 1].id : null;
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let newMessages = [];
+                // Si la liste de tout les messages correspond à la liste actuelle
+                if (JSON.stringify(allMessages) === JSON.stringify(data.messages)) {
+                    return;
+                } else if (allMessages.length === 0) {
+                    // Si la liste de tout les messages est vide
+                    newMessages = data.messages;
+                } else {
+                    // Récupérer la liste des messages qui ne sont pas déjà affichés
+                    newMessages = data.messages.filter(message => !allMessages.some(m => m.id === message.id));
+                }
 
-            if (newLastMessageId === lastMessageId) {
-                isLoading = false; // Aucun nouveau message
-                return;
-            }
+                // Récupérer la position dans le scroll et vérifier si on est tout en bas
+                // Utile pour savoir si on doit défiler jusqu'en bas après l'ajout des nouveaux messages ou si l'utilisateur est entrain de consulter des anciens messages
+                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
 
-            lastMessageId = newLastMessageId; // Mettre à jour l'ID du dernier message
-            messagesContainer.innerHTML = ''; // Vider le conteneur
+                // Parcourir les messages et les ajouter
+                newMessages.forEach(message => {
+                    const isCurrentUser = message.user_id === {{ auth()->id() }};
+                    const messageElement = document.createElement('div');
+                    messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
+                    messageElement.innerHTML = `
+                <!-- Encadré bleu avec le user_id en première ligne -->
+                <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
+                    <!-- Affichage du user_id dans l'encadré bleu -->
+                    <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
+                    ${message.message}
+                </p>`;
 
-            // Parcourir les messages et les ajouter
-            data.messages.forEach(message => {
-                const isCurrentUser = message.user_id === {{ auth()->id() }};
-                let messageElement = `
-                    <div class="flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2">
-                        <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
+                    // Gestion des médias
+                    if (message.media_url) {
+                        let mediaElement =
+                            `
+                <div class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
+                    <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>`;
+                        if (message.media_url.endsWith('.mp4')) {
+                            mediaElement += `
+                    <video controls preload="none" class="w-full" poster="{{ asset('source/assets/images/') }}/video.png">
+                        <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
+                    </video>`;
+                        } else if (message.media_url.endsWith('.mp3')) {
+                            mediaElement += `
+                    <audio preload="none" controls class="w-full">
+                        <source src="{{ asset('source/media/') }}/${message.media_url}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>`;
+                        } else {
+                            mediaElement += `
+                    <img src="{{ asset('source/media/') }}/${message.media_url}" class="w-full rounded-lg">`;
+                        }
+
+                        mediaElement += `
+                        <p class="mt-3">
                             ${message.message}
                         </p>
                     </div>`;
-
-                // Gestion des médias
-                if (message.media_url && message.opening_date < new Date().toISOString()) {
-                    let mediaElement = `
-                        <div class="flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2">
-                            <div class="max-w-[45%] ${isCurrentUser ? 'rounded-tl-lg' : 'rounded-tr-lg'} rounded-bl-lg rounded-br-lg">`;
-
-                    if (message.media_url.endsWith('.mp4')) {
-                        mediaElement += `
-                            <video controls preload="none" class="w-full" poster="{{ asset('source/assets/images/') }}/video.png">
-                                <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
-                            </video>`;
-                    } else if (message.media_url.endsWith('.mp3')) {
-                        mediaElement += `
-                            <audio preload="none" controls class="w-full">
-                                <source src="{{ asset('source/media/') }}/${message.media_url}" type="audio/mpeg">
-                                Your browser does not support the audio element.
-                            </audio>`;
-                    } else {
-                        mediaElement += `
-                            <img src="{{ asset('source/media/') }}/${message.media_url}" class="w-full rounded-lg">`;
+                    messageElement.innerHTML = mediaElement;
                     }
+                    messagesContainer.appendChild(messageElement);
+                });
 
-                    mediaElement += `
-                                <p class="secondary-background-app text-white p-2 rounded-bl-lg rounded-br-lg">
-                                    ${message.message}
-                                </p>
-                            </div>
-                        </div>`;
-                    messagesContainer.innerHTML += mediaElement;
-                } else {
-                    messagesContainer.innerHTML += messageElement;
-                }
-            });
+                // Mettre à jour la liste de tout les messages
+                allMessages = data.messages;
 
-            scrollToBottom(); // Faire défiler jusqu'en bas
-        })
-        .catch(error => console.error('Erreur:', error))
-        .finally(() => {
-            isLoading = false; // Libérer le flag après chargement
-        });
+                // Attendre que tout les médias soient chargés avant de faire défiler
+                const mediaElements = document.querySelectorAll('img, video');
+                mediaElements.forEach(mediaElement => {
+                    mediaElement.addEventListener('load', () => {
+                        if (isAtBottom) {
+                            scrollToBottom()
+                        };
+                    });
+                });
+
+                // Faire défiler jusqu'en bas (utile si il y a pas de médias)
+                if (isAtBottom) {
+                    scrollToBottom()
+                };
+            })
+            .catch(error => console.error('Erreur:', error))
     }
 
     // Fonction pour démarrer la mise à jour automatique des messages
     function startAutoRefresh(intervalTime = 500) {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
-            if (currentChatId) loadChat(currentChatId, null, false);
+            if (currentChatId) loadChat(currentChatId, null, null, false);
         }, intervalTime);
     }
 
@@ -139,18 +158,20 @@
         if (!messageContent) return;
 
         fetch(`/chat/${currentChatId}/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ message: messageContent })
-        })
-        .then(() => {
-            document.getElementById('message-content').value = '';
-        })
-        .catch(error => console.error('Erreur:', error));
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    message: messageContent
+                })
+            })
+            .then(() => {
+                document.getElementById('message-content').value = '';
+            })
+            .catch(error => console.error('Erreur:', error));
     }
 
     // Fonction pour faire défiler les messages jusqu'en bas

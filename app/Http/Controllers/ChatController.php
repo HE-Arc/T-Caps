@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 use App\Models\Message;
+use App\Models\Friendship;
+use App\Models\Chat;
+
 
 use Illuminate\Http\Request;
 
@@ -10,17 +13,47 @@ class ChatController extends Controller
     public function index()
     {
         $discussions = auth()->user()->chats()
-            ->with([
-                'messages' => function ($query) {
-                    $query->latest()->limit(1);
-                }
-            ])
-            ->latest()
-            ->get();
+        ->with(['messages' => function ($query) {
+            $query->latest()->limit(1);
+        }, 'members']) // Assure-toi que la relation members est chargée
+        ->latest()
+        ->get()
+        ->map(function ($discussion) {
+            // Vérifie si la discussion est un chat individuel (2 membres)
+            if ($discussion->members->count() == 2) {
+                // Détermine l'image en fonction des membres
+                $otherMember = $discussion->members->first()->id == auth()->id()
+                    ? $discussion->members->skip(1)->first()
+                    : $discussion->members->first();
+
+                // Ajoute l'image sélectionnée comme propriété de la discussion
+                $discussion->discussionPicture = $otherMember->image
+                    ? asset('storage/' . $otherMember->image)
+                    : asset('source/assets/avatar/avatar.png');
+            } else {
+                // Utilise une image par défaut pour les groupes
+                $discussion->discussionPicture = asset('source/assets/images/group.png');
+            }
+
+            return $discussion;
+        });
+
+        // Récupérer les amis acceptés
+        $friends = Friendship::where(function ($query) {
+            $query->where('user_id', auth()->id())
+                ->orWhere('friend_id', auth()->id());
+            })
+            ->where('status', 'accepted')
+            ->with('user', 'friend')
+            ->get()
+            ->map(function ($friendship) {
+                return $friendship->user_id === auth()->id() ? $friendship->friend : $friendship->user;
+            });
 
         return view('dashboard', [
             'discussions' => $discussions,
             'selectedDiscussion' => $discussions->first(),
+            'friends' => $friends
         ]);
     }
 
@@ -28,6 +61,7 @@ class ChatController extends Controller
     {
         $messages = Message::where('chat_id', $chatId)
             ->orderBy('created_at', 'asc')
+            ->with('user')
             ->get();
 
         return response()->json(['messages' => $messages]);
@@ -51,7 +85,7 @@ class ChatController extends Controller
     {
         // Validation
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4|max:2048',
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4|max:1024',
             'message' => 'required|string',
         ]);
 
