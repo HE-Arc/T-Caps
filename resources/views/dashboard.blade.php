@@ -32,6 +32,17 @@
         document.getElementById('chat-placeholder').style.display = 'none';
         document.getElementById('chat-area').style.display = 'flex';
 
+        // Vérifier si la discussion est déjà chargée
+        if (currentChatId !== chatId) {
+            // Réinitialiser la liste de tout les messages
+            allMessages = [];
+            document.getElementById('messages').innerHTML = '';
+
+            // Récupérer le champ contenant l'id pour la création de capsule via son id et mettre à jour l'action
+            const hiddenInput = document.getElementById('discussion-id');
+            if (hiddenInput) hiddenInput.value = chatId;
+        }
+
         // Mettre à jour l'ID de la discussion actuelle
         currentChatId = chatId;
 
@@ -115,7 +126,7 @@
     }
 
     // Fonction pour démarrer la mise à jour automatique des messages
-    function startAutoRefresh(intervalTime = 3000) {
+    function startAutoRefresh(intervalTime = 500) {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
             if (currentChatId) loadChat(currentChatId, null, false);
