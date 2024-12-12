@@ -77,7 +77,7 @@
                 // Récupérer la position dans le scroll et vérifier si on est tout en bas
                 // Utile pour savoir si on doit défiler jusqu'en bas après l'ajout des nouveaux messages ou si l'utilisateur est entrain de consulter des anciens messages
                 const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 0.6;
-                
+
                 // Parcourir les messages et les ajouter
                 newMessages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
@@ -97,7 +97,7 @@
                             `
                 <div class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>`;
-                        if (message.media_url.endsWith('.mp4')) {
+                        if (message.media_url.endsWith('.mp4') || message.media_url.endsWith('.mov')) {
                             mediaElement += `
                     <video controls preload="none" class="w-full" poster="{{ asset('source/assets/images/') }}/video.png">
                         <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
@@ -108,7 +108,7 @@
                         <source src="{{ asset('source/media/') }}/${message.media_url}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>`;
-                        } else {
+                        }else {
                             mediaElement += `
                     <img src="{{ asset('source/media/') }}/${message.media_url}" class="w-full rounded-lg">`;
                         }

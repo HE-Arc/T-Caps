@@ -22,7 +22,7 @@
                                 <p class="text-blue-400 underline">cliquez pour sélectionner un fichier</p>
                             </div>
                         </label>
-                        <input id="file" name="file" type="file" class="hidden" onchange="updateFileName()">
+                        <input id="file" name="file" type="file" class="hidden" onchange="updateFileName()" x-model="file">
                     </div>
                 </div>
                 <script>
@@ -57,6 +57,10 @@
                     <x-input-label for="message" value="Message" />
                     <x-text-input id="message" name="message" type="text" class="block w-full mt-1"
                         x-model="chatMessage" />
+                    <div class="mb-4">
+                        <x-input-label for="date-time" value="Date et heure d'ouverture de la capsule (laisser vide pour ouverture instantanée)" />
+                        <input type="datetime-local" id="date-time" name="date_time" class="block w-full mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
+                    </div>
                 </div>
                 <!-- Boutons d'action -->
                 <div class="mt-6 flex justify-end">
@@ -76,9 +80,9 @@
 function capsuleForm() {
     return {
         chatMessage: '',
+        file: null,
         submitForm() {
             event.preventDefault();
-            console.log('Soumettre le formulaire');
             // Récupérer dynamiquement l'ID de la discussion depuis le champ caché
             const discussionId = document.getElementById('discussion-id').value;
 
@@ -97,9 +101,12 @@ function capsuleForm() {
             .then(response => response.json())
             .then(data => {
                 if (data.message.id) {
-                    // Fermer le modal ou réinitialiser le formulaire
+                    // Fermer le modal et réinitialiser le formulaire
                     this.chatMessage = '';
-                    $dispatch('close');
+                    this.file = null;
+                    document.getElementById('file-info').innerHTML = `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
+                    document.getElementById('date-time').value = '';
+                    this.$dispatch('close');
                 } else {
                     console.log(data)
                     alert('Erreur lors de l\'envoi de la capsule');
