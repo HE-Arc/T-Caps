@@ -76,8 +76,8 @@
 
                 // Récupérer la position dans le scroll et vérifier si on est tout en bas
                 // Utile pour savoir si on doit défiler jusqu'en bas après l'ajout des nouveaux messages ou si l'utilisateur est entrain de consulter des anciens messages
-                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
-
+                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 0.6;
+                
                 // Parcourir les messages et les ajouter
                 newMessages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
