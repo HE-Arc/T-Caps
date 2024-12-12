@@ -22,6 +22,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ChatController::class, 'index'])->name('dashboard');
     Route::get('/chat/{discussion}/messages', [ChatController::class, 'getMessages']);
     Route::post('/chat/{discussion}/messages', [ChatController::class, 'storeMessage']);
+    Route::post('/chat/{discussion}/capsule', [ChatController::class, 'storeCapsule']);
     Route::post('/chats', [ChatController::class, 'storeChat'])->name('chats.store');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
