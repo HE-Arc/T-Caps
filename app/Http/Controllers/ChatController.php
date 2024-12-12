@@ -85,7 +85,7 @@ class ChatController extends Controller
     {
         // Validation
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4|max:1024',
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4|max:1048576',
             'message' => 'required|string',
         ]);
 
