@@ -80,25 +80,7 @@ class ChatController extends Controller
             return response()->json(['error' => 'Chat not found or unauthorized.'], 404);
         }
 
-        if ($chat->members->count() > 2) {
-            $blockedByAnyone = $chat->members->filter(function ($member) {
-                return $member->id !== auth()->id();
-            })->contains(function ($member) {
-                $friendship = Friendship::where(function ($query) use ($member) {
-                    $query->where('user_id', auth()->id())
-                        ->where('friend_id', $member->id);
-                })->orWhere(function ($query) use ($member) {
-                    $query->where('user_id', $member->id)
-                        ->where('friend_id', auth()->id());
-                })->first();
-
-                return $friendship && $friendship->isBlocked();
-            });
-
-            if ($blockedByAnyone) {
-                return response()->json(['error' => 'You are blocked by one of the members of this group.']);
-            }
-        } else {
+         if ($chat->members->count() == 2) {
             $otherMember = $chat->members->firstWhere('id', '!=', auth()->id());
 
             $friendship = Friendship::where(function ($query) use ($otherMember) {
