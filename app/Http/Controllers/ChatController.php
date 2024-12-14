@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use App\Models\Friendship;
 use App\Models\Chat;
+use Illuminate\Support\Facades\DB;
 
 
 use Illuminate\Http\Request;
@@ -60,9 +61,42 @@ class ChatController extends Controller
     public function getMessages($chatId)
     {
         $messages = Message::where('chat_id', $chatId)
-            ->orderBy('opening_date', 'asc')
+            ->orderBy('created_at', 'asc')
             ->with('user')
             ->get();
+
+        $opened_capsule = Message::where('chat_id', $chatId)
+            ->where('created_at', '<', DB::raw('opening_date'))
+            ->where('opening_date', '<', now('Europe/Paris'))
+            ->orderBy('created_at', 'asc')
+            ->with('user')
+            ->get();
+
+        // Pour tout les opened_capsule, modifier l'id du message
+        $opened_capsule->each(function ($message) {
+            $message->id += 10000000;
+            // On modifie la date de création pour qu'elle corresponde à la date d'ouverture, pour que le message soit affiché au bon endroit dans la conversation
+            $message->created_at = $message->opening_date;
+        });
+
+        // Pour tout les messages qui ont une date de création plus petite que la opening_date, modifier le message
+        $messages->each(function ($message) {
+            if ($message->created_at < $message->opening_date) {
+                $message->message = "🔒 Ce message va être ouvert le {$message->opening_date}";
+                $message->media_url = "logo.png";
+            }
+        });
+
+        $opened_capsule = $opened_capsule->toArray();
+        $messages = $messages->toArray();
+
+        // Fusionner les messages et les capsules ouvertes
+        $messages = array_merge($messages, $opened_capsule);
+
+        // Trier les messages par date de création
+        usort($messages, function ($a, $b) {
+            return $a['created_at'] <=> $b['created_at'];
+        });
 
         return response()->json(['messages' => $messages]);
     }
@@ -93,7 +127,7 @@ class ChatController extends Controller
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
             $media = $request->file('file');
             $mediaName = time() . '_' . $media->getClientOriginalName();
-            
+
             // Déplacer le fichier vers le répertoire public/source/media
             $media->move(public_path('source/media'), $mediaName);
 

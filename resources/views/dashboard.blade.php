@@ -82,6 +82,25 @@
                 newMessages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
                     const messageElement = document.createElement('div');
+                    const prettyDate = new Date(message.created_at).toLocaleString('fr-FR', {
+                        day: 'numeric',
+                        month: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric'
+                    });
+                    const prettyOpeningDate = new Date(message.opening_date).toLocaleString('fr-FR', {
+                        day: 'numeric',
+                        month: 'numeric',
+                        year: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric'
+                    });
+                    const messageId = message.id;
+                    // On check si le <p> avec l'id message-${message.id} à un message.id correspondant à messageId-10000000 existe et modifier son contenu au besoin
+                    if (document.getElementById(`message-${messageId-10000000}`)) {
+                        document.getElementById(`message-${messageId-10000000}`).innerHTML = `🔓 Ce message a été ouvert le ${prettyOpeningDate}`;
+                    }
                     messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
                     messageElement.innerHTML = `
                 <!-- Encadré bleu avec le user_id en première ligne -->
@@ -89,6 +108,7 @@
                     <!-- Affichage du user_id dans l'encadré bleu -->
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
                     ${message.message}
+                    <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
                 </p>`;
 
                     // Gestion des médias
@@ -114,9 +134,11 @@
                         }
 
                         mediaElement += `
-                        <p class="mt-3">
+                        <p class="mt-3" id="message-${message.id}">
                             ${message.message}
                         </p>
+                        <!-- Afficher tout à droite la date de created_at -->
+                        <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
                     </div>`;
                     messageElement.innerHTML = mediaElement;
                     }
