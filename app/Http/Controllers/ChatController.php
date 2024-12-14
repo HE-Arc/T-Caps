@@ -163,9 +163,7 @@ class ChatController extends Controller
             $message->media_url = $mediaName;
 
             // Vérifier que la date d'ouverture est définie
-            if ($request->has('date_time')) {
-                $message->opening_date = $request->date_time;
-            }
+            $message->opening_date = $request->filled('date_time') ? $request->date_time : now("Europe/Paris");
 
             $message->save();
 
