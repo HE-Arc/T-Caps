@@ -81,6 +81,7 @@
                 newMessages.forEach(message => {
                     const isCurrentUser = message.user_id === {{ auth()->id() }};
                     const messageElement = document.createElement('div');
+                    messageElement.id = `message-div-${message.id}`;
                     const prettyDate = new Date(message.created_at).toLocaleString('fr-FR', {
                         day: 'numeric',
                         month: 'numeric',
@@ -269,7 +270,7 @@ function deleteMessage(messageId, discussionId) {
     })
     .then(data => {
         alert(data.message || "Message supprimé.");
-        const messageElement = document.getElementById(`message-${messageId}`);
+        const messageElement = document.getElementById(`message-div-${messageId}`);
         if (messageElement) {
             messageElement.remove();
         }
