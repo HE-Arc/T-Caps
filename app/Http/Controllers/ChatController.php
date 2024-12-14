@@ -164,4 +164,17 @@ class ChatController extends Controller
         // Rediriger avec un message de succès
         return redirect()->route('dashboard')->with('success', 'Discussion créée avec succès !');
     }
+
+        public function leaveChat($chatId)
+        {
+            $chat = Chat::find($chatId);
+
+            if (!$chat) {
+                return response()->json(['error' => 'Chat not found.'], 404);
+            }
+
+            $chat->users()->detach(auth()->id());
+
+            return response()->json(['message' => 'You left the chat.']);
+        }
 }
