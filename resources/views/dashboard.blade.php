@@ -174,7 +174,6 @@
             .catch(error => console.error('Erreur:', error));
     }
 
-    // Fonction pour faire défiler les messages jusqu'en bas
     function scrollToBottom() {
         const messagesContainer = document.getElementById('messages');
         if (messagesContainer) {
@@ -206,11 +205,9 @@ function leaveChat() {
             alert(data.message || "Vous avez quitté la conversation.");
             currentChatId = null;
 
-            // Optionnel : mise à jour locale de l'interface
             document.getElementById('chat-area').style.display = 'none';
             document.getElementById('chat-placeholder').style.display = 'flex';
 
-            // Recharger la page pour mettre à jour la liste des discussions
             location.reload();
         })
         .catch(error => {
@@ -218,7 +215,40 @@ function leaveChat() {
             alert("Une erreur s'est produite en essayant de quitter la conversation.");
         });
 }
+function deleteMessage(messageId, discussionId) {
+    if (!messageId || !discussionId) {
+        alert("Informations de message ou discussion manquantes.");
+        return;
+    }
 
+    fetch(`/chat/${discussionId}/${messageId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            throw new Error("Impossible de supprimer le message.");
+        }
+    })
+    .then(data => {
+        alert(data.message || "Message supprimé.");
 
-    startAutoRefresh(); // Démarrer l'auto-rafraîchissement
+        const messageElement = document.getElementById(`message-${messageId}`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+        location.reload();
+    })
+    .catch(error => {
+        console.error("Erreur :", error);
+        alert("Une erreur s'est produite lors de la suppression du message.");
+    });
+}
+
+    startAutoRefresh(); 
 </script>

@@ -177,4 +177,21 @@ class ChatController extends Controller
 
             return response()->json(['message' => 'You left the chat.']);
         }
+
+    function deleteMessage($messageId)
+    {
+        $message = Message::find($messageId);
+
+        if (!$message) {
+            return response()->json(['error' => 'Message not found.'], 404);
+        }
+
+        if ($message->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted.']);
+    }
 }
