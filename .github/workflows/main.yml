@@ -12,10 +12,14 @@ jobs:
     steps:
       - name: Deploying app
         run: |
-          rm -rf /home/laravel/project/T-Caps
           cd /home/laravel/project
-          git clone https://github.com/HE-Arc/T-Caps.git
-          cd ./T-Caps
+          if [ -d "./T-Caps" ]; then
+            cd ./T-Caps
+            git pull
+          else
+            git clone https://github.com/HE-Arc/T-Caps.git
+            cd ./T-Caps
+          fi
           composer install --optimize-autoloader --no-dev
           npm install
           cp ../.env .env
