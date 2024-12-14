@@ -80,7 +80,7 @@ class ChatController extends Controller
             return response()->json(['error' => 'Chat not found or unauthorized.'], 404);
         }
 
-         if ($chat->members->count() == 2) {
+        if ($chat->members->count() == 2) {
             $otherMember = $chat->members->firstWhere('id', '!=', auth()->id());
 
             $friendship = Friendship::where(function ($query) use ($otherMember) {
@@ -165,25 +165,25 @@ class ChatController extends Controller
         return redirect()->route('dashboard')->with('success', 'Discussion créée avec succès !');
     }
 
-        public function leaveChat($chatId)
-        {
-            $chat = Chat::find($chatId);
+    public function leaveChat($chatId)
+    {
+        $chat = Chat::find($chatId);
 
-            if (!$chat) {
-                return response()->json(['error' => 'Chat not found.'], 404);
-            }
-
-            $chat->users()->detach(auth()->id());
-
-            return response()->json(['message' => 'You left the chat.']);
+        if (!$chat) {
+            return response()->json(['error' => 'Chat not found.'], 404);
         }
 
-    function deleteMessage($messageId)
+        $chat->users()->detach(auth()->id());
+
+        return response()->json(['message' => 'You left the chat.']);
+    }
+
+    public function deleteMessage($discussionId, $messageId)
     {
-        $message = Message::find($messageId);
+        $message = Message::where('id', $messageId)->where('chat_id', $discussionId)->first();
 
         if (!$message) {
-            return response()->json(['error' => 'Message not found.'], 404);
+            return response()->json(['error' => 'Message not found or does not belong to this discussion.'], 404);
         }
 
         if ($message->user_id !== auth()->id()) {
@@ -192,6 +192,6 @@ class ChatController extends Controller
 
         $message->delete();
 
-        return response()->json(['message' => 'Message deleted.']);
+        return response()->json(['message' => 'Message deleted successfully.']);
     }
 }
