@@ -178,7 +178,7 @@
     }
 
     // Fonction pour démarrer la mise à jour automatique des messages
-    function startAutoRefresh(intervalTime = 2000) {
+    function startAutoRefresh(intervalTime = 5000) {
         if (interval) clearInterval(interval);
         interval = setInterval(() => {
             if (currentChatId) loadChat(currentChatId, null, null, false);
