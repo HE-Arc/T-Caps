@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Message;
 use App\Models\Friendship;
 use App\Models\Chat;
@@ -14,36 +15,36 @@ class ChatController extends Controller
     public function index()
     {
         $discussions = auth()->user()->chats()
-        ->with(['messages' => function ($query) {
-            $query->latest()->limit(1);
-        }, 'members']) // Assure-toi que la relation members est chargée
-        ->latest()
-        ->get()
-        ->map(function ($discussion) {
-            // Vérifie si la discussion est un chat individuel (2 membres)
-            if ($discussion->members->count() == 2) {
-                // Détermine l'image en fonction des membres
-                $otherMember = $discussion->members->first()->id == auth()->id()
-                    ? $discussion->members->skip(1)->first()
-                    : $discussion->members->first();
+            ->with(['messages' => function ($query) {
+                $query->latest()->limit(1);
+            }, 'members']) // Assure-toi que la relation members est chargée
+            ->latest()
+            ->get()
+            ->map(function ($discussion) {
+                // Vérifie si la discussion est un chat individuel (2 membres)
+                if ($discussion->members->count() == 2) {
+                    // Détermine l'image en fonction des membres
+                    $otherMember = $discussion->members->first()->id == auth()->id()
+                        ? $discussion->members->skip(1)->first()
+                        : $discussion->members->first();
 
-                // Ajoute l'image sélectionnée comme propriété de la discussion
-                $discussion->discussionPicture = $otherMember->image
-                    ? asset('storage/' . $otherMember->image)
-                    : asset('source/assets/avatar/avatar.png');
-            } else {
-                // Utilise une image par défaut pour les groupes
-                $discussion->discussionPicture = asset('source/assets/images/group.png');
-            }
+                    // Ajoute l'image sélectionnée comme propriété de la discussion
+                    $discussion->discussionPicture = $otherMember->image
+                        ? asset('storage/' . $otherMember->image)
+                        : asset('source/assets/avatar/avatar.png');
+                } else {
+                    // Utilise une image par défaut pour les groupes
+                    $discussion->discussionPicture = asset('source/assets/images/group.png');
+                }
 
-            return $discussion;
-        });
+                return $discussion;
+            });
 
         // Récupérer les amis acceptés
         $friends = Friendship::where(function ($query) {
             $query->where('user_id', auth()->id())
                 ->orWhere('friend_id', auth()->id());
-            })
+        })
             ->where('status', 'accepted')
             ->with('user', 'friend')
             ->get()
@@ -106,6 +107,29 @@ class ChatController extends Controller
         $request->validate([
             'message' => 'required|string',
         ]);
+
+        $chat = Chat::with('members')->find($chatId);
+
+        if (!$chat || !$chat->members->contains(auth()->id())) {
+            return response()->json(['error' => 'Chat not found or unauthorized.'], 404);
+        }
+
+        if ($chat->members->count() == 2) {
+            $otherMember = $chat->members->firstWhere('id', '!=', auth()->id());
+
+            $friendship = Friendship::where(function ($query) use ($otherMember) {
+                $query->where('user_id', auth()->id())
+                    ->where('friend_id', $otherMember->id);
+            })->orWhere(function ($query) use ($otherMember) {
+                $query->where('user_id', $otherMember->id)
+                    ->where('friend_id', auth()->id());
+            })->first();
+
+            if ($friendship && $friendship->isBlocked()) {
+                return response()->json(['error' => 'You are blocked by this user or you blocked this user.']);
+            }
+        }
+
         $message = new Message();
         $message->user_id = auth()->id();
         $message->chat_id = $chatId;
@@ -175,4 +199,33 @@ class ChatController extends Controller
         return redirect()->route('dashboard')->with('success', 'Discussion créée avec succès !');
     }
 
+    public function leaveChat($chatId)
+    {
+        $chat = Chat::find($chatId);
+
+        if (!$chat) {
+            return response()->json(['error' => 'Chat not found.'], 404);
+        }
+
+        $chat->users()->detach(auth()->id());
+
+        return response()->json(['message' => 'You left the chat.']);
+    }
+
+    public function deleteMessage($discussionId, $messageId)
+    {
+        $message = Message::where('id', $messageId)->where('chat_id', $discussionId)->first();
+
+        if (!$message) {
+            return response()->json(['error' => 'Message not found or does not belong to this discussion.'], 404);
+        }
+
+        if ($message->user_id !== auth()->id()) {
+            return response()->json(['error' => 'Unauthorized.'], 403);
+        }
+
+        $message->delete();
+
+        return response()->json(['message' => 'Message deleted successfully.']);
+    }
 }

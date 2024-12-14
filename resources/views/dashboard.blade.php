@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="h-full flex background-app">
         <!-- Inclure le composant de la barre de discussions -->
-        <x-messaging.discussion-sidebar :discussions="$discussions" :friends="$friends"/>
+        <x-messaging.discussion-sidebar :discussions="$discussions" :friends="$friends" />
 
         <!-- Zone de chat avec message par défaut -->
         <div id="chat-placeholder" class="flex-1 flex items-center justify-center text-white bg-gray-800">
@@ -10,7 +10,7 @@
 
         <!-- Section de chat (initialement cachée) -->
         <div id="chat-area" class="flex-1 background-app flex flex-col h-full relative hidden">
-            <x-messaging.header />
+            <x-messaging.header/>
             <x-messaging.messages />
             <x-messaging.chatbar />
         </div>
@@ -24,17 +24,16 @@
 
     // Fonction pour charger la discussion
     function loadChat(chatId, discussionName, discussionPicture, newOpening = true) {
-        const messagesContainer = document.getElementById('messages');
+    const messagesContainer = document.getElementById('messages');
 
-        // Masquer le placeholder et afficher la zone de chat
-        document.getElementById('chat-placeholder').style.display = 'none';
-        document.getElementById('chat-area').style.display = 'flex';
+    // Masquer le placeholder et afficher la zone de chat
+    document.getElementById('chat-placeholder').style.display = 'none';
+    document.getElementById('chat-area').style.display = 'flex';
 
-        // Vérifier si la discussion est déjà chargée
-        if (currentChatId !== chatId) {
-            // Réinitialiser la liste de tout les messages
-            allMessages = [];
-            document.getElementById('messages').innerHTML = '';
+    // Réinitialiser les messages si on change de discussion
+    if (currentChatId !== chatId) {
+        allMessages = [];
+        messagesContainer.innerHTML = '';
 
             // Récupérer le champ contenant l'id pour la création de capsule via son id et mettre à jour l'action
             const hiddenInput = document.getElementById('discussion-id');
@@ -102,14 +101,25 @@
                         document.getElementById(`message-${messageId-10000000}`).innerHTML = `🔓 Ce message a été ouvert le ${prettyOpeningDate}`;
                     }
                     messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
-                    messageElement.innerHTML = `
-                <!-- Encadré bleu avec le user_id en première ligne -->
-                <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
-                    <!-- Affichage du user_id dans l'encadré bleu -->
-                    <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
-                    ${message.message}
-                    <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
-                </p>`;
+                    // Construction du contenu du message
+                let messageContent = `
+                    <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
+                        <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
+                        ${message.message}
+                    </p>`;
+
+                // Ajout de la poubelle pour les messages de l'utilisateur
+                if (isCurrentUser) {
+                    messageContent += `
+                        <button onclick="deleteMessage(${message.id}, ${chatId})"
+                            class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                            title="Supprimer le message">
+                            🗑️
+                        </button>`;
+                }
+
+                // Ajouter le contenu au conteneur du message
+                messageElement.innerHTML = messageContent;
 
                     // Gestion des médias
                     if (message.media_url) {
@@ -196,7 +206,6 @@
             .catch(error => console.error('Erreur:', error));
     }
 
-    // Fonction pour faire défiler les messages jusqu'en bas
     function scrollToBottom() {
         const messagesContainer = document.getElementById('messages');
         if (messagesContainer) {
@@ -204,5 +213,74 @@
         }
     }
 
-    startAutoRefresh(); // Démarrer l'auto-rafraîchissement
+function leaveChat() {
+    if (!currentChatId) {
+        alert("Aucune discussion sélectionnée.");
+        return;
+    }
+
+    fetch(`/chat/${currentChatId}/leave`, {
+            method: 'DELETE',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Impossible de quitter la conversation.");
+            }
+        })
+        .then(data => {
+            alert(data.message || "Vous avez quitté la conversation.");
+            currentChatId = null;
+
+            document.getElementById('chat-area').style.display = 'none';
+            document.getElementById('chat-placeholder').style.display = 'flex';
+
+            location.reload();
+        })
+        .catch(error => {
+            console.error("Erreur :", error);
+            alert("Une erreur s'est produite en essayant de quitter la conversation.");
+        });
+}
+function deleteMessage(messageId, discussionId) {
+    if (!messageId || !discussionId) {
+        alert("Informations de message ou discussion manquantes.");
+        return;
+    }
+
+    fetch(`/chat/${discussionId}/${messageId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            console.error("Erreur de suppression, statut:", response.status);
+            throw new Error("Impossible de supprimer le message.");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert(data.message || "Message supprimé.");
+        const messageElement = document.getElementById(`message-${messageId}`);
+        if (messageElement) {
+            messageElement.remove();
+        }
+        loadChat(discussionId, null, null, false);
+    })
+    .catch(error => {
+        console.error("Erreur lors de la suppression :", error);
+        alert("Une erreur s'est produite lors de la suppression du message.");
+    });
+}
+
+
+    startAutoRefresh();
 </script>
