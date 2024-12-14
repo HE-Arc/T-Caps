@@ -61,7 +61,7 @@ class ChatController extends Controller
     public function getMessages($chatId)
     {
         $messages = Message::where('chat_id', $chatId)
-            ->orderBy('created_at', 'asc')
+            ->orderBy('opening_date', 'asc')
             ->with('user')
             ->get();
 
@@ -109,8 +109,8 @@ class ChatController extends Controller
     {
         // Validation
         $request->validate([
-            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4|max:1024',
-            'message' => 'required|string',
+            'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4,mov|max:1048576',
+            'message' => 'required|string'
         ]);
 
         // Vérification de la présence du fichier
@@ -127,6 +127,11 @@ class ChatController extends Controller
             $message->chat_id = $chatId;
             $message->message = $request->message;
             $message->media_url = $mediaName;
+
+            // Vérifier que la date d'ouverture est définie
+            if ($request->has('date_time')) {
+                $message->opening_date = $request->date_time;
+            }
 
             $message->save();
 
