@@ -34,6 +34,11 @@ T-Caps is a project developed by students of the HE-Arc engineering school in Sw
     ```bash
     php artisan migrate:fresh --seed
     ```
+
+6. Link the storage
+    ```bash
+    php artisan storage:link
+    ```
    
 6. Start the servers
     ```bash
