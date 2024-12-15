@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/chat/{discussion}/capsule', [ChatController::class, 'storeCapsule']);
     Route::delete('/chat/{discussion}/leave', [ChatController::class, 'leaveChat']);
     Route::delete('/chat/{discussion}/{message}/delete', [ChatController::class, 'deleteMessage']);
+    Route::get('/chat/{chatId}/deleted-messages', [ChatController::class, 'getDeletedMessages']);
     Route::post('/chats', [ChatController::class, 'storeChat'])->name('chats.store');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

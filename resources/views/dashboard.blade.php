@@ -177,15 +177,36 @@
             .catch(error => console.error('Erreur:', error))
     }
 
-    // Fonction pour démarrer la mise à jour automatique des messages
     function startAutoRefresh(intervalTime = 5000) {
-        if (interval) clearInterval(interval);
-        interval = setInterval(() => {
-            if (currentChatId) loadChat(currentChatId, null, null, false);
-        }, intervalTime);
-    }
+    if (interval) clearInterval(interval);
 
-    // Fonction pour envoyer un message
+    interval = setInterval(() => {
+        if (currentChatId) {
+            loadChat(currentChatId, null, null, false);
+
+            fetch(`/chat/${currentChatId}/deleted-messages`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const deletedMessages = data.deletedMessages || [];
+
+                deletedMessages.forEach(messageId => {
+                    const messageElement = document.getElementById(`message-div-${messageId}`);
+                    if (messageElement) {
+                        messageElement.innerHTML = `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
+                    }
+                });
+            })
+            .catch(error => console.error('Erreur lors de la récupération des suppressions:', error));
+        }
+    }, intervalTime);
+}
+
     function sendMessage() {
         const messageContent = document.getElementById('message-content').value;
         if (!messageContent) return;
@@ -281,7 +302,6 @@ function deleteMessage(messageId, discussionId) {
         alert("Une erreur s'est produite lors de la suppression du message.");
     });
 }
-
 
     startAutoRefresh();
 </script>
