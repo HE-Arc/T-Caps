@@ -62,6 +62,7 @@
             .then(response => response.json())
             .then(data => {
                 let newMessages = [];
+                let deletedMessages = [];
                 // Si la liste de tout les messages correspond à la liste actuelle
                 if (JSON.stringify(allMessages) === JSON.stringify(data.messages)) {
                     return;
@@ -72,6 +73,9 @@
                     // Récupérer la liste des messages qui ne sont pas déjà affichés
                     newMessages = data.messages.filter(message => !allMessages.some(m => m.id === message.id));
                 }
+
+                // Récupérer la liste des messages supprimés
+                deletedMessages = allMessages.filter(message => !data.messages.some(m => m.id === message.id));
 
                 // Récupérer la position dans le scroll et vérifier si on est tout en bas
                 // Utile pour savoir si on doit défiler jusqu'en bas après l'ajout des nouveaux messages ou si l'utilisateur est entrain de consulter des anciens messages
@@ -156,6 +160,14 @@
                     messagesContainer.appendChild(messageElement);
                 });
 
+                // Parcourir les messages supprimés et enlever la div du message correspondant
+                deletedMessages.forEach(message => {
+                    const messageElement = document.getElementById(`message-div-${message.id}`);
+                    if (messageElement) {
+                        messageElement.innerHTML = `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
+                    }
+                });
+
                 // Mettre à jour la liste de tout les messages
                 allMessages = data.messages;
 
@@ -178,34 +190,14 @@
     }
 
     function startAutoRefresh(intervalTime = 5000) {
-    if (interval) clearInterval(interval);
+        if (interval) clearInterval(interval);
 
-    interval = setInterval(() => {
-        if (currentChatId) {
-            loadChat(currentChatId, null, null, false);
-
-            fetch(`/chat/${currentChatId}/deleted-messages`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                const deletedMessages = data.deletedMessages || [];
-
-                deletedMessages.forEach(messageId => {
-                    const messageElement = document.getElementById(`message-div-${messageId}`);
-                    if (messageElement) {
-                        messageElement.innerHTML = `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
-                    }
-                });
-            })
-            .catch(error => console.error('Erreur lors de la récupération des suppressions:', error));
-        }
-    }, intervalTime);
-}
+        interval = setInterval(() => {
+            if (currentChatId) {
+                loadChat(currentChatId, null, null, false);
+            }
+        }, intervalTime);
+    }
 
     function sendMessage() {
         const messageContent = document.getElementById('message-content').value;

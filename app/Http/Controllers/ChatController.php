@@ -228,13 +228,4 @@ class ChatController extends Controller
 
         return response()->json(['message' => 'Message deleted successfully.']);
     }
-
-    public function getDeletedMessages($chatId)
-{
-    $deletedMessages = Message::onlyTrashed()
-        ->where('discussion_id', $chatId)
-        ->pluck('id');
-
-    return response()->json(['deletedMessages' => $deletedMessages]);
-}
 }
