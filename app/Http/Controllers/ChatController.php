@@ -83,7 +83,9 @@ class ChatController extends Controller
         // Pour tout les messages qui ont une date de création plus petite que la opening_date, modifier le message
         $messages->each(function ($message) {
             if ($message->created_at < $message->opening_date) {
-                $message->message = "🔒 Ce message va être ouvert le {$message->opening_date}";
+                $prettyDate = \Carbon\Carbon::parse($message->opening_date);
+                $prettyDate = $prettyDate->format('d/m/Y H:i');
+                $message->message = "🔒 Ce message va être ouvert le {$prettyDate}";
                 $message->media_url = "logo.png";
             }
         });
