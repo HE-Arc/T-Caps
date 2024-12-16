@@ -9,7 +9,7 @@
             <img src="{{asset('source/assets/images/send.png')}}" alt="Icone" class="h-6 w-6">
         </button>
         <x-modal name="create-file-modal" focusable>
-            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm">
+            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" id="discussion-id" name="discussion_id" value="CHAT_ID">
                 <h3 class="text-lg font-semibold text-gray-300 mb-5">Créer une capsule</h3>
@@ -22,7 +22,8 @@
                                 <p class="text-blue-400 underline">cliquez pour sélectionner un fichier</p>
                             </div>
                         </label>
-                        <input id="file" name="file" type="file" class="hidden" onchange="updateFileName()" x-model="file">
+                        <!-- Ajout de l'attribut 'required' pour le fichier -->
+                        <input id="file" name="file" type="file" class="hidden" onchange="updateFileName()" x-model="file" required>
                     </div>
                 </div>
                 <script>
@@ -55,8 +56,7 @@
                 <!-- Champ pour le message de la capsule -->
                 <div class="mb-4">
                     <x-input-label for="message" value="Message" />
-                    <x-text-input id="message" name="message" type="text" class="block w-full mt-1"
-                        x-model="chatMessage" />
+                    <x-text-input id="message" name="message" type="text" class="block w-full mt-1" x-model="chatMessage" required />
                     <div class="mb-4">
                         <x-input-label for="date-time" value="Date et heure d'ouverture de la capsule (laisser vide pour ouverture instantanée)" />
                         <input type="datetime-local" id="date-time" name="date_time" class="block w-full mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
@@ -67,7 +67,7 @@
                     <x-secondary-button x-on:click="$dispatch('close')">
                         Annuler
                     </x-secondary-button>
-                    <x-primary-button class="ml-3" x-on:click.prevent="submitForm">
+                    <x-primary-button class="ml-3" type="submit">
                         Envoyer la capsule
                     </x-primary-button>
                 </div>
@@ -81,13 +81,20 @@ function capsuleForm() {
     return {
         chatMessage: '',
         file: null,
-        submitForm() {
-            event.preventDefault();
+        submitForm(event) {
+            // Aucun besoin de validation ici car HTML fait déjà le travail
+            const form = document.getElementById('create-file-modal-form');
+            if (!form.checkValidity()) {
+                event.preventDefault(); // Empêche l'envoi si le formulaire n'est pas valide
+                alert('Veuillez remplir tous les champs obligatoires.');
+                return;
+            }
+
             // Récupérer dynamiquement l'ID de la discussion depuis le champ caché
             const discussionId = document.getElementById('discussion-id').value;
 
             // Créer l'objet FormData avec les données du formulaire
-            const formData = new FormData(document.getElementById('create-file-modal-form'));
+            const formData = new FormData(form);
 
             // Effectuer la requête AJAX avec `fetch`
             fetch(`/chat/${discussionId}/capsule`, {
