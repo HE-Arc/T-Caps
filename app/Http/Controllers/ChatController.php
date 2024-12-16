@@ -10,37 +10,43 @@ use Illuminate\Support\Facades\DB;
 
 use Illuminate\Http\Request;
 
+/**
+ * Controller for the chat system (discussions, messages, capsules, etc.).
+ */
 class ChatController extends Controller
 {
+    /** 
+     * Show the dashboard with the list of discussions and pass the friends list to the view.
+     */
     public function index()
     {
+        // Get the list of discussions with the last message and the members
         $discussions = auth()->user()->chats()
             ->with(['messages' => function ($query) {
                 $query->latest()->limit(1);
-            }, 'members']) // Assure-toi que la relation members est chargée
+            }, 'members'])
             ->latest()
             ->get()
             ->map(function ($discussion) {
-                // Vérifie si la discussion est un chat individuel (2 membres)
+                // We check if the discussion is a private chat
                 if ($discussion->members->count() == 2) {
-                    // Détermine l'image en fonction des membres
+                    // And set the profile picture of the other member as the discussion picture
                     $otherMember = $discussion->members->first()->id == auth()->id()
                         ? $discussion->members->skip(1)->first()
                         : $discussion->members->first();
 
-                    // Ajoute l'image sélectionnée comme propriété de la discussion
                     $discussion->discussionPicture = $otherMember->image
                         ? asset('storage/' . $otherMember->image)
                         : asset('source/assets/avatar/avatar.png');
                 } else {
-                    // Utilise une image par défaut pour les groupes
+                    // We use a default group picture if the discussion is a group chat
                     $discussion->discussionPicture = asset('source/assets/images/group.png');
                 }
 
                 return $discussion;
             });
 
-        // Récupérer les amis acceptés
+        // Get the list of friends (accepted friendships)
         $friends = Friendship::where(function ($query) {
             $query->where('user_id', auth()->id())
                 ->orWhere('friend_id', auth()->id());
@@ -59,13 +65,21 @@ class ChatController extends Controller
         ]);
     }
 
+    /**
+     * Return the messages of a discussion (with the closed capsules and opened capsules)
+     * 
+     * @param int $chatId The ID of the discussion
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the array of messages.
+     */
     public function getMessages($chatId)
     {
+        // We get all the messages (including the closed capsules) of the discussion
         $messages = Message::where('chat_id', $chatId)
             ->orderBy('created_at', 'asc')
             ->with('user')
             ->get();
 
+        // We get the opened capsules of the discussion
         $opened_capsule = Message::where('chat_id', $chatId)
             ->where('created_at', '<', DB::raw('opening_date'))
             ->where('opening_date', '<', now('Europe/Paris'))
@@ -73,14 +87,18 @@ class ChatController extends Controller
             ->with('user')
             ->get();
 
-        // Pour tout les opened_capsule, modifier l'id du message
+        // For all the opened capsules, we modify the ID to avoid conflicts with the other messages
+        // and we change the creation date to the opening date as the messages will be sorted by creation date
+        // We do that to display the opened capsules at the right place in the chat
         $opened_capsule->each(function ($message) {
             $message->id += 10000000;
-            // On modifie la date de création pour qu'elle corresponde à la date d'ouverture, pour que le message soit affiché au bon endroit dans la conversation
             $message->created_at = $message->opening_date;
         });
 
-        // Pour tout les messages qui ont une date de création plus petite que la opening_date, modifier le message
+        // For all messages that have a creation date less than the opening_date, modify the message
+        // If the creation date is less than the opening date, it means that the message is a capsule,
+        // so we change the message to a locked message and we change the media_url to a default image
+        // to avoid sending the message and media of the capsule to the client before the opening date
         $messages->each(function ($message) {
             if ($message->created_at < $message->opening_date) {
                 $prettyDate = \Carbon\Carbon::parse($message->opening_date);
@@ -90,13 +108,13 @@ class ChatController extends Controller
             }
         });
 
+        // To avoid error in the format of the returned JSON
         $opened_capsule = $opened_capsule->toArray();
         $messages = $messages->toArray();
 
-        // Fusionner les messages et les capsules ouvertes
         $messages = array_merge($messages, $opened_capsule);
 
-        // Trier les messages par date de création
+        // We sort the messages by creation date
         usort($messages, function ($a, $b) {
             return $a['created_at'] <=> $b['created_at'];
         });
@@ -104,6 +122,13 @@ class ChatController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
+    /**
+     * Store a new message sent by the user in a specific chat.
+     * 
+     * @param \Illuminate\Http\Request $request The request containing the message content.
+     * @param int $chatId The ID of the chat.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the message (or an error).
+     */
     public function storeMessage(Request $request, $chatId)
     {
         $request->validate([
@@ -116,6 +141,7 @@ class ChatController extends Controller
             return response()->json(['error' => 'Chat not found or unauthorized.'], 404);
         }
 
+        // Logic to check if the user is blocked by the other member or if the other member is blocked
         if ($chat->members->count() == 2) {
             $otherMember = $chat->members->firstWhere('id', '!=', auth()->id());
 
@@ -132,6 +158,7 @@ class ChatController extends Controller
             }
         }
 
+        // Create a new message and save it in the database
         $message = new Message();
         $message->user_id = auth()->id();
         $message->chat_id = $chatId;
@@ -141,64 +168,80 @@ class ChatController extends Controller
         return response()->json(['message' => $message]);
     }
 
+    /**
+     * Store a new capsule sent by the user in a specific chat.
+     * 
+     * @param \Illuminate\Http\Request $request The request containing the message content and the media file.
+     * @param int $chatId The ID of the chat.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the capsule (or an error).
+     */
     public function storeCapsule(Request $request, $chatId)
     {
-        // Validation
+        // We authorize file up to 1GB and only the following formats
         $request->validate([
             'file' => 'required|file|mimes:jpeg,png,jpg,gif,mp3,mp4,mov|max:1048576',
             'message' => 'required|string'
         ]);
 
-        // Vérification de la présence du fichier
+        // Check if the file is valid
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
             $media = $request->file('file');
-            $mediaName = time() . '_' . $media->getClientOriginalName();
 
-            // Déplacer le fichier vers le répertoire public/source/media
+            // Generate a unique name for the file and move it to the media folder
+            $mediaName = time() . '_' . $media->getClientOriginalName();
             $media->move(public_path('source/media'), $mediaName);
 
-            // Créer un nouveau message et l'enregistrer dans la base de données
+            // Create a new message and save it in the database (with the media URL)
             $message = new Message();
             $message->user_id = auth()->id();
             $message->chat_id = $chatId;
             $message->message = $request->message;
             $message->media_url = $mediaName;
 
-            // Vérifier que la date d'ouverture est définie
+            // Setting the opening date to now (to open it instantly) if the user didn't set one
             $message->opening_date = $request->filled('date_time') ? $request->date_time : now("Europe/Paris");
 
             $message->save();
 
             return response()->json(['message' => $message]);
         }
-
-        return response()->json(['error' => 'Le fichier n\'a pas été envoyé ou est invalide.'], 400);
+        return response()->json(['error' => 'The file was not sent or is invalid.'], 400);
     }
 
+    /**
+     * Store a new chat with the name and the friends selected by the user.
+     * 
+     * @param \Illuminate\Http\Request $request The request containing the chat name and the friends.
+     * @return \Illuminate\Http\RedirectResponse A redirect response to the dashboard with a success message.
+     */
     public function storeChat(Request $request)
     {
-        // Valider les champs du formulaire
         $request->validate([
             'chat_name' => 'required|string|max:255',
-            'friends' => 'required|array|min:1', // Minimum 1 ami sélectionné
-            'friends.*' => 'exists:users,id', // Vérifie si les amis existent dans la table users
+            'friends' => 'required|array|min:1', // Minimum 1 friend selected
+            'friends.*' => 'exists:users,id', // Checking if the friends exist in the database
         ]);
 
-        // Créer la discussion dans la table 'chats'
-        $chat = new Chat();  // Assurez-vous d'importer App\Models\Chat en haut
+        // Create a new chat and save it in the database
+        $chat = new Chat();
         $chat->name = $request->chat_name;
         $chat->save();
 
-        // Associer l'utilisateur actuel à la discussion
+        // Link the user who created the chat to the discussion
         $chat->users()->attach(auth()->id());
 
-        // Associer les amis sélectionnés à la discussion
+        // Link the friends selected by the user to the discussion
         $chat->users()->attach($request->friends);
 
-        // Rediriger avec un message de succès
         return redirect()->route('dashboard')->with('success', 'Discussion créée avec succès !');
     }
 
+    /**
+     * Leave a chat (remove the user from the chat).
+     * 
+     * @param int $chatId The ID of the chat.
+     * @return \Illuminate\Http\JsonResponse A JSON response with a message.
+     */
     public function leaveChat($chatId)
     {
         $chat = Chat::find($chatId);
@@ -212,6 +255,13 @@ class ChatController extends Controller
         return response()->json(['message' => 'You left the chat.']);
     }
 
+    /**
+     * Delete a message from a discussion.
+     * 
+     * @param int $discussionId The ID of the discussion.
+     * @param int $messageId The ID of the message.
+     * @return \Illuminate\Http\JsonResponse A JSON response with a message (or an error).
+     */
     public function deleteMessage($discussionId, $messageId)
     {
         $message = Message::where('id', $messageId)->where('chat_id', $discussionId)->first();
