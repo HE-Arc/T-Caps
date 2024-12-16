@@ -5,7 +5,10 @@
     </div>
     <button id="leave-chat-btn"
         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-        onclick="leaveChat()"> 
+        onclick="leaveChatWithLoad()">
         Quitter
     </button>
+    <span id="leave-chat-loader" style="display:none;">
+        <div class="spinner"></div>
+    </span>`;
 </div>

@@ -266,6 +266,25 @@ function leaveChat() {
             alert("Une erreur s'est produite en essayant de quitter la conversation.");
         });
 }
+leaveChatWithLoad()
+{
+    const loader = document.getElementById('leave-chat-loader');
+    const button = event.target;
+    button.style.display = 'none';
+    loader.style.display = 'inline';
+
+    leaveChat()
+        .then(() => {
+            loader.style.display = 'none';
+            button.style.display = 'inline';
+        })
+        .catch((error) => {
+            console.error(error);
+            loader.style.display = 'none';
+            button.style.display = 'inline';
+        });
+}
+
 function deleteMessage(messageId, discussionId) {
     if (!messageId || !discussionId) {
         alert("Informations de message ou discussion manquantes.");
