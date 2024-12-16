@@ -64,7 +64,7 @@
         </li>
         @foreach ($discussions as $discussion)
             <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer"
-                onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ true }})">
+                onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ $discussion->members }}, {{ true }})">
                 <img src="{{ $discussion->discussionPicture }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 flex-shrink-0">
                 <!-- Ajout de flex-shrink-0 pour éviter que l'image rétrécisse -->
                 <div class="flex-1">

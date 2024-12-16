@@ -23,7 +23,7 @@
     let allMessages = [];
 
     // Fonction pour charger la discussion
-    function loadChat(chatId, discussionName, discussionPicture, newOpening = true) {
+    function loadChat(chatId, discussionName, discussionPicture, members, newOpening = true) {
     const messagesContainer = document.getElementById('messages');
 
     // Masquer le placeholder et afficher la zone de chat
@@ -50,7 +50,27 @@
 
             const headerImage = document.querySelector('.headerImage');
             if(headerImage) headerImage.src = discussionPicture;
+
+            if (members && Array.isArray(members)) {
+                const membersList = document.getElementById('members-list');
+                if (membersList) {
+                    membersList.innerHTML = ''; // Vider la liste existante
+                    members.forEach(member => {
+                        const listItem = document.createElement('li');
+                        const memberName = member.name + ({{ auth()->id() }} == member.id ? " (Moi)" : "");
+                        const avatarUrl = member.image ? `/storage/${member.image}` : `/source/assets/avatar/avatar.png`;
+
+                        listItem.className = 'flex items-center gap-x-3';
+                        listItem.innerHTML = `
+                            <img src="${avatarUrl}" alt="Avatar" class="w-8 h-8 rounded-full">
+                            <span>${memberName}</span>
+                        `;
+                        membersList.appendChild(listItem);
+                    });
+                }
+            }
         }
+
 
         fetch(`/chat/${chatId}/messages`, {
                 method: 'GET',
@@ -194,7 +214,7 @@
 
         interval = setInterval(() => {
             if (currentChatId) {
-                loadChat(currentChatId, null, null, false);
+                loadChat(currentChatId, null, null, null, false);
             }
         }, intervalTime);
     }
@@ -287,7 +307,7 @@ function deleteMessage(messageId, discussionId) {
         if (messageElement) {
             messageElement.remove();
         }
-        loadChat(discussionId, null, null, false);
+        loadChat(discussionId, null, null, null, false);
     })
     .catch(error => {
         console.error("Erreur lors de la suppression :", error);
