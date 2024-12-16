@@ -28,21 +28,21 @@
                                 <p class="font-medium text-white">Sélectionnez le/les amis à ajouter à la discussion</p>
                                 <div class="mt-2 overflow-y-auto max-h-48 scrollbar-hide rounded p-2">
                                     @foreach ($friends as $friend)
-                                        <div
-                                            class="flex items-center justify-between mb-2 p-2 rounded hover:bg-gray-700 transition-colors">
-                                            <div class="flex items-center">
-                                                @if ($friend->image)
-                                                    <img src="{{ asset('storage/' . $friend->image) }}" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
-                                                @else
-                                                    <img src="{{ asset('source/assets/avatar/avatar.png') }}"
-                                                        alt="Avatar" class="w-8 h-8 rounded-full mr-3">
-                                                @endif
-                                                <span class="text-white font-medium">{{ $friend->name }}</span>
-                                            </div>
-                                            <input type="checkbox" name="friends[]" value="{{ $friend->id }}"
-                                                class="h-5 w-5 bg-gray-400 rounded-full focus:ring-0 border-none checked:bg-gray-500"
-                                                x-model="selectedFriends">
+                                    <div
+                                        class="flex items-center justify-between mb-2 p-2 rounded hover:bg-gray-700 transition-colors">
+                                        <div class="flex items-center">
+                                            @if ($friend->image)
+                                            <img src="{{ asset('storage/' . $friend->image) }}" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
+                                            @else
+                                            <img src="{{ asset('source/assets/avatar/avatar.png') }}"
+                                                alt="Avatar" class="w-8 h-8 rounded-full mr-3">
+                                            @endif
+                                            <span class="text-white font-medium">{{ $friend->name }}</span>
                                         </div>
+                                        <input type="checkbox" name="friends[]" value="{{ $friend->id }}"
+                                            class="h-5 w-5 bg-gray-400 rounded-full focus:ring-0 border-none checked:bg-gray-500"
+                                            x-model="selectedFriends">
+                                    </div>
                                     @endforeach
                                     <p x-show="errors.friends" class="text-red-500 text-sm mt-1">Sélectionnez au moins
                                         un ami.</p>
@@ -53,9 +53,12 @@
                                 <x-secondary-button x-on:click="$dispatch('close')">
                                     Annuler
                                 </x-secondary-button>
-                                <x-primary-button class="ml-3">
+                                <x-primary-button id="create-chat" class="ml-3">
                                     Créer la discussion
                                 </x-primary-button>
+                                <span id="create-chat-loader" style="display:none;">
+                                    <div class="spinner"></div>
+                                </span>
                             </div>
                         </form>
                     </x-modal>
@@ -63,19 +66,19 @@
             </div>
         </li>
         @foreach ($discussions as $discussion)
-            <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer"
-                onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ true }})">
-                <img src="{{ $discussion->discussionPicture }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 flex-shrink-0">
-                <!-- Ajout de flex-shrink-0 pour éviter que l'image rétrécisse -->
-                <div class="flex-1">
-                    <div class="font-bold">{{ $discussion->name }}</div>
-                    <div class="text-sm text-gray-400 whitespace-nowrap">
-                        @if ($discussion->messages->first())
-                            {{ $discussion->messages->first()->message }}
-                        @endif
-                    </div>
+        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer"
+            onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ true }})">
+            <img src="{{ $discussion->discussionPicture }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 flex-shrink-0">
+            <!-- Ajout de flex-shrink-0 pour éviter que l'image rétrécisse -->
+            <div class="flex-1">
+                <div class="font-bold">{{ $discussion->name }}</div>
+                <div class="text-sm text-gray-400 whitespace-nowrap">
+                    @if ($discussion->messages->first())
+                    {{ $discussion->messages->first()->message }}
+                    @endif
                 </div>
-            </li>
+            </div>
+        </li>
         @endforeach
     </ul>
 </div>
@@ -92,11 +95,16 @@
             validateForm() {
                 // Réinitialise l'erreur des amis
                 this.errors.friends = this.selectedFriends.length === 0;
-
+                let createChatBtn = document.getElementById('create-chat');
+                let createChatLoader = document.getElementById('create-chat-loader');
+                createChatBtn.style.display = 'none';
+                createChatLoader.style.display = 'block';
                 if (!this.errors.friends) {
                     // Soumet le formulaire si la validation passe
                     this.$el.submit();
                 }
+                createChatBtn.style.display = 'block';
+                createChatLoader.style.display = 'none';
             }
         }
     }

@@ -206,6 +206,8 @@
 
     function sendMessage() {
         const messageContent = document.getElementById('message-content').value;
+        document.getElementById('send-message-btn').style.display = 'none';
+        document.getElementById('send-message-loader').style.display = 'block';
         if (!messageContent) return;
 
         fetch(`/chat/${currentChatId}/messages`, {
@@ -223,6 +225,8 @@
                 document.getElementById('message-content').value = '';
             })
             .catch(error => console.error('Erreur:', error));
+        document.getElementById('send-message-btn').style.display = 'block';
+        document.getElementById('send-message-loader').style.display = 'none';
     }
 
     function scrollToBottom() {
@@ -253,7 +257,6 @@ function leaveChat() {
             }
         })
         .then(data => {
-            alert(data.message || "Vous avez quitté la conversation.");
             currentChatId = null;
 
             document.getElementById('chat-area').style.display = 'none';
@@ -266,7 +269,7 @@ function leaveChat() {
             alert("Une erreur s'est produite en essayant de quitter la conversation.");
         });
 }
-leaveChatWithLoad()
+function leaveChatWithLoad()
 {
     const loader = document.getElementById('leave-chat-loader');
     const button = event.target;

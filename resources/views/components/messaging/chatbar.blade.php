@@ -5,9 +5,13 @@
             <img src="{{asset('source/assets/images/add.png')}}" alt="Icone" class="h-6 w-6">
         </button>
         <input type="text" id="message-content" class="flex-1 secondary-background-app text-white border-none rounded-3xl p-2 ml-2 mr-2" onkeypress="if(event.key === 'Enter') { sendMessage() }">
-        <button onclick="sendMessage()" class="rounded-full secondary-background-app p-2 flex items-center justify-center">
+        <button id="send-message-btn" onclick="sendMessage()" class="rounded-full secondary-background-app p-2 flex items-center justify-center">
             <img src="{{asset('source/assets/images/send.png')}}" alt="Icone" class="h-6 w-6">
         </button>
+        <span id="send-message-loader" style="display:none;">
+            <div class="spinner"></div>
+        </span>
+
         <x-modal name="create-file-modal" focusable>
             <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm">
                 @csrf
@@ -77,46 +81,46 @@
 </div>
 
 <script>
-function capsuleForm() {
-    return {
-        chatMessage: '',
-        file: null,
-        submitForm() {
-            event.preventDefault();
-            // Récupérer dynamiquement l'ID de la discussion depuis le champ caché
-            const discussionId = document.getElementById('discussion-id').value;
+    function capsuleForm() {
+        return {
+            chatMessage: '',
+            file: null,
+            submitForm() {
+                event.preventDefault();
+                // Récupérer dynamiquement l'ID de la discussion depuis le champ caché
+                const discussionId = document.getElementById('discussion-id').value;
 
-            // Créer l'objet FormData avec les données du formulaire
-            const formData = new FormData(document.getElementById('create-file-modal-form'));
+                // Créer l'objet FormData avec les données du formulaire
+                const formData = new FormData(document.getElementById('create-file-modal-form'));
 
-            // Effectuer la requête AJAX avec `fetch`
-            fetch(`/chat/${discussionId}/capsule`, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.message.id) {
-                    // Fermer le modal et réinitialiser le formulaire
-                    this.chatMessage = '';
-                    this.file = null;
-                    document.getElementById('file-info').innerHTML = `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
-                    document.getElementById('date-time').value = '';
-                    this.$dispatch('close');
-                } else {
-                    console.log(data)
-                    alert('Erreur lors de l\'envoi de la capsule');
-                }
-            })
-            .catch(error => {
-                alert('Erreur lors de l\'envoi');
-                console.error(error);
-            });
-        }
-    };
-}
+                // Effectuer la requête AJAX avec `fetch`
+                fetch(`/chat/${discussionId}/capsule`, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message.id) {
+                            // Fermer le modal et réinitialiser le formulaire
+                            this.chatMessage = '';
+                            this.file = null;
+                            document.getElementById('file-info').innerHTML = `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
+                            document.getElementById('date-time').value = '';
+                            this.$dispatch('close');
+                        } else {
+                            console.log(data)
+                            alert('Erreur lors de l\'envoi de la capsule');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Erreur lors de l\'envoi');
+                        console.error(error);
+                    });
+            }
+        };
+    }
 </script>

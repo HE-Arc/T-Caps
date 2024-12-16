@@ -6,35 +6,46 @@
 
             <div class="space-y-2">
                 <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
-                       placeholder="Enter friend's username">
+                    class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
+                    placeholder="Enter friend's username">
 
                 @error('name')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
             <div>
-                <button type="submit" class="w-full text-white py-2 secondary-background-app transition-colors duration-200">
+                <button id="add-friend-btn" type="submit" class="w-full text-white py-2 secondary-background-app transition-colors duration-200" onclick="addFriendWithLoad()">
                     Add Friend
                 </button>
+                <span id="add-friend-loader" style="display:none;">
+                    <div class="spinner"></div>
+                </span>
+
             </div>
 
             <!-- Affichage du message de succès ou d'erreur sous le champ de saisie -->
             <div>
                 @if(session('success'))
-                    <p class="text-green-500 mt-1">
-                        {{ session('success') }}
-                    </p>
+                <p class="text-green-500 mt-1">
+                    {{ session('success') }}
+                </p>
                 @endif
 
                 @if(session('error'))
-                    <p class="text-red-500 mt-1">
-                        {{ session('error') }}
-                    </p>
+                <p class="text-red-500 mt-1">
+                    {{ session('error') }}
+                </p>
                 @endif
             </div>
 
         </form>
     </div>
 </x-app-layout>
+
+<script>
+    function addFriendWithLoad() {
+        document.getElementById('add-friend-btn').style.display = 'none';
+        document.getElementById('add-friend-loader').style.display = 'block';
+    }
+</script>
