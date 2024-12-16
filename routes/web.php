@@ -7,16 +7,16 @@ use App\Http\Controllers\FriendshipsController;
 use App\Http\Controllers\ChatController;
 
 Route::get('/', function () {
+    // check if the user is authenticated
     if (Auth::check()) {
         // call the controller ChatController method index
         return redirect()->route('dashboard');
     }
     else {
+        // if the user is not authenticated, return the login view
         return view('auth.login');
     }
 });
-
-
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ChatController::class, 'index'])->name('dashboard');
@@ -34,9 +34,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/friends/{friendship_id}/accept', [FriendshipsController::class, 'accept'])->name('friends.accept');
     Route::post('/friends/{friendship_id}/decline', [FriendshipsController::class, 'decline'])->name('friends.decline');
     Route::post('/friends/{friend}/block', [FriendshipsController::class, 'block'])->name('friends.block');
-
-
 });
-
 
 require __DIR__.'/auth.php';
