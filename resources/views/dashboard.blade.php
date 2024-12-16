@@ -111,7 +111,9 @@
                     <p class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                         <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>
                         ${message.message}
-                    </p>`;
+                        <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
+                    </p>
+                    `;
 
                 // Ajout de la poubelle pour les messages de l'utilisateur
                 if (isCurrentUser) {
