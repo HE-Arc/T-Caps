@@ -21,16 +21,17 @@
     background-color: #415A77;
 }
 
-.btn-inactive{
+.btn-inactive {
     background-color: #778DA9;
 }
 
-.btn-active{
+.btn-active {
     background-color: #1B263B;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-    display: none; /* Masque la barre de défilement */
+    display: none;
+    /* Masque la barre de défilement */
 }
 
 .tertiary-background-app {
@@ -46,4 +47,23 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-  } 
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}

@@ -118,11 +118,14 @@
                 // Ajout de la poubelle pour les messages de l'utilisateur
                 if (isCurrentUser) {
                     messageContent += `
-                        <button onclick="deleteMessage(${message.id}, ${chatId})"
-                            class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
-                            title="Supprimer le message">
-                            🗑️
-                        </button>`;
+                    <button onclick="deleteMessageWithLoader(${message.id}, ${chatId})"
+                        class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                        title="Supprimer le message">
+                        🗑️
+                    </button>
+                    <span id="loader-${message.id}" style="display:none;">
+                        <div class="spinner"></div> 
+                    </span>`;
                 }
 
                 // Ajouter le contenu au conteneur du message
@@ -284,7 +287,6 @@ function deleteMessage(messageId, discussionId) {
         return response.json();
     })
     .then(data => {
-        alert(data.message || "Message supprimé.");
         const messageElement = document.getElementById(`message-div-${messageId}`);
         if (messageElement) {
             messageElement.remove();
@@ -295,6 +297,25 @@ function deleteMessage(messageId, discussionId) {
         console.error("Erreur lors de la suppression :", error);
         alert("Une erreur s'est produite lors de la suppression du message.");
     });
+}
+
+function deleteMessageWithLoader(messageId, chatId) {
+    const loader = document.getElementById(`loader-${messageId}`);
+    const button = event.target;  
+    button.style.display = 'none';  
+    loader.style.display = 'inline';  
+    
+    
+    deleteMessage(messageId, chatId)
+        .then(() => {
+            loader.style.display = 'none';  
+            button.style.display = 'inline'; 
+        })
+        .catch((error) => {
+            console.error(error);
+            loader.style.display = 'none';  
+            button.style.display = 'inline'; 
+        });
 }
 
     startAutoRefresh();
