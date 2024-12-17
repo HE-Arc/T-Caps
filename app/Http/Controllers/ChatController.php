@@ -263,7 +263,7 @@ class ChatController extends Controller
      * @return \Illuminate\Http\JsonResponse A JSON response with a message (or an error).
      */
     public function deleteMessage($discussionId, $messageId)
-    {
+    {   
         $message = Message::where('id', $messageId)->where('chat_id', $discussionId)->first();
 
         if (!$message) {
@@ -273,8 +273,10 @@ class ChatController extends Controller
         if ($message->user_id !== auth()->id()) {
             return response()->json(['error' => 'Unauthorized.'], 403);
         }
+        //Check if the message has a corresponding capsule
         if (Message::find($message->id + 10000000))
-        {
+        {   
+            //If the message has a corresponding capsule, we delete the capsule and the message
             $capsule = Message::where('id', $messageId + 10000000)->where('chat_id', $discussionId)->first();
             if ($message->media_url) {
                 $mediaPath = public_path('source/assets/media/' . $message->media_url);
@@ -285,6 +287,8 @@ class ChatController extends Controller
             $capsule->delete();
             $message->delete();
         }
+        //If the message doesn't have a corresponding capsule, we delete the message
+        //We also check if the message has a media file and delete it if it exists
         else{
             if ($message->media_url) {
                 $mediaPath = public_path("/source/media/" . $message->media_url);

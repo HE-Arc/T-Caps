@@ -367,8 +367,9 @@ async function sendMessageWithLoader() {
         alert("Informations de message ou discussion manquantes.");
         return;
     }
-    console.log("messageId", messageId)
     
+    // if the message has an id greater than 10000000, it means it is a capsule message
+    // so we need to delete the message with the id - 10000000 to delete the original message
     if(messageId >= 10000000)
     {
         const response = await fetch(`/chat/${discussionId}/${messageId - 10000000}/delete`, {
@@ -379,6 +380,7 @@ async function sendMessageWithLoader() {
         }
     });
     }
+    // if the message has an id less than 10000000, it means it is a normal message
     else{
         const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
         method: 'DELETE',
@@ -393,7 +395,7 @@ async function sendMessageWithLoader() {
         console.error("Erreur de suppression, statut:", response.status);
         throw new Error("Impossible de supprimer le message.");
     }
- 
+    
     const messageElement = document.getElementById(`message-div-${messageId}`);
     if (messageElement) {
         messageElement.remove();
@@ -401,6 +403,11 @@ async function sendMessageWithLoader() {
 }
 
 
+/**
+ * Function to leave a chat with a loader
+ * 
+ * @returns {void}
+ */
 function leaveChatWithLoad()
 {
     const loader = document.getElementById('leave-chat-loader');
@@ -420,6 +427,13 @@ function leaveChatWithLoad()
         });
 }
 
+/**
+ * Function to delete a message with a loader
+ * 
+ * @param {number} messageId The ID of the message
+ * @param {number} chatId The ID of the chat
+ * @returns {void}
+ */
 async function deleteMessageWithLoader(messageId, chatId) {
     const loader = document.getElementById(`loader-${messageId}`);
     const button = event.target;

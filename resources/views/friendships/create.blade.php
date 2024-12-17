@@ -44,6 +44,9 @@
 </x-app-layout>
 
 <script>
+    /**
+     * Function to display the loader when the user clicks on the button to add a friend
+     */
     function addFriendWithLoad() {
         document.getElementById('add-friend-btn').style.display = 'none';
         document.getElementById('add-friend-loader').style.display = 'block';

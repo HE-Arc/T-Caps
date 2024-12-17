@@ -10,8 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class FriendshipsController extends Controller
 {
+    /**
+     * Display a listing of the friendships of the user.
+     */
     public function index()
     {
+
+        // Auth id can be the user_id or the friend_id in the db so we need to check both
         $friendsFromUser = Friendship::where('user_id', Auth::id())
             ->where('status', 'accepted')
             ->with(['user', 'friend'])
@@ -29,6 +34,9 @@ class FriendshipsController extends Controller
         ]);
     }
 
+    /**
+     * Show the form for creating a new friendship.
+     */
     public function create()
     {
         return view('friendships.create');
@@ -53,6 +61,12 @@ class FriendshipsController extends Controller
         ]);
     }
 
+    /**
+     * Store a newly created friendship in storage.
+     * 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -86,7 +100,13 @@ class FriendshipsController extends Controller
         return back()->with('success', 'Friend request sent !');
     }
 
-    public function accept(Request $request, $friendship_id)
+    /**
+     * Accept a friendship request.
+     * 
+     * @param  int  $friendship_id
+     * @return \Illuminate\Http\Response
+     */
+    public function accept($friendship_id)
     {
         $friendship = Friendship::find($friendship_id);
 
@@ -99,7 +119,13 @@ class FriendshipsController extends Controller
         return back()->with('error', 'Could not accept the friend request.');
     }
 
-    public function decline(Request $request, $friendship_id)
+    /**
+     * Decline a friendship request.
+     * 
+     * @param  int  $friendship_id
+     * @return \Illuminate\Http\Response
+     */
+    public function decline($friendship_id)
     {
         $friendship = Friendship::find($friendship_id);
 
@@ -111,6 +137,12 @@ class FriendshipsController extends Controller
         return back()->with('error', 'Could not decline the friend request.');
     }
 
+    /**
+     * Remove the specified friendship from storage.
+     * 
+     * @param  int  $friend
+     * @return \Illuminate\Http\Response
+     */
     public function destroy($friend)
     {
         $friendship = Friendship::where(function ($query) use ($friend) {
@@ -129,6 +161,12 @@ class FriendshipsController extends Controller
         return back()->with('error', 'Could not find the friend to remove.');
     }
 
+    /**
+     * Block a user.
+     * 
+     * @param  int  $friend
+     * @return \Illuminate\Http\Response
+     */
     public function block($friend)
     {
         $friend = User::findOrFail($friend);
