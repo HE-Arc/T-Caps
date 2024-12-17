@@ -9,7 +9,7 @@
             <img src="{{asset('source/assets/images/send.png')}}" alt="Icone" class="h-6 w-6">
         </button>
         <x-modal name="create-file-modal" focusable>
-            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm" enctype="multipart/form-data">
+            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm" enctype="multipart/form-data" x-on:click.away="$dispatch('close'); document.getElementById('create-file-modal-form').reset(); document.getElementById('file-info').innerHTML = '<p class=&quot;text-gray-300 font-medium&quot;>Glissez et déposez votre fichier ici ou</p><p class=&quot;text-blue-400 underline&quot;>cliquez pour sélectionner un fichier</p>';">
                 @csrf
                 <input type="hidden" id="discussion-id" name="discussion_id" value="CHAT_ID">
                 <h3 class="text-lg font-semibold text-gray-300 mb-5">Créer une capsule</h3>
