@@ -22,6 +22,8 @@
     // This is the interval in milliseconds for the chat auto-refresh (getting messages)
     let interval = 500;
     let allMessages = [];
+    let newMessages = [];
+    let deletedMessages = [];
 
     /**
      * Function to load a chat
@@ -43,6 +45,8 @@
         // Reset the messages if we change the selected chat
         if (currentChatId !== chatId) {
             allMessages = [];
+            newMessages = [];
+            deletedMessages = [];
             messagesContainer.innerHTML = '';
 
             // Update the hidden input with the chat ID
@@ -90,8 +94,6 @@
             })
             .then(response => response.json())
             .then(data => {
-                let newMessages = [];
-                let deletedMessages = [];
                 // If the list of all messages matches the current list
                 if (JSON.stringify(allMessages) === JSON.stringify(data.messages)) {
                     // No need to update the messages
@@ -203,6 +205,9 @@
                     messageElement.innerHTML = mediaElement;
                     }
 
+                    // add to messageElement the chatId of the message to be able to delete it later
+                    messageElement.setAttribute('chatId', message.chat_id);
+
                     // Adding the message element to the messages container
                     messagesContainer.appendChild(messageElement);
                 });
@@ -213,6 +218,13 @@
                     if (messageElement) {
                         messageElement.innerHTML = `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
                     }
+                });
+
+                // Check all the messages in the chat if the chatid attribute from the div is different from the current chat id
+                const messages = document.querySelectorAll(`[chatid]:not([chatid="${currentChatId}"])`);
+                // and remove them (to avoid old messages to be in the new chat)
+                messages.forEach(message => {
+                    message.remove();
                 });
 
                 // Updating the list of all messages that have been displayed
