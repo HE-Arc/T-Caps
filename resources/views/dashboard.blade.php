@@ -168,7 +168,7 @@
                             `
                 <div class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>`;
-                        if (message.media_url.endsWith('.mp4') || message.media_url.endsWith('.mov')) {
+                        if (message.media_url.endsWith('.mp4') || message.media_url.endsWith('.mov') || message.media_url.endsWith('.MOV')) {
                             mediaElement += `
                     <video controls preload="none" class="w-full" poster="{{ asset('source/assets/images/') }}/video.png">
                         <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
