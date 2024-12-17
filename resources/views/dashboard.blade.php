@@ -190,6 +190,16 @@
                     </p>
                     <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
                 </div>`;
+                if (isCurrentUser){
+                    mediaElement += `   <button onclick="deleteMessageWithLoader(${message.id}, ${chatId})"
+                                            class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
+                                            title="Supprimer le message">
+                                            🗑️
+                                        </button>
+                                         <span id="loader-${message.id}"  style="display:none;">
+                                            <div class="spinner"></div> 
+                                         </span>`;
+                }
                     messageElement.innerHTML = mediaElement;
                     }
 
@@ -352,44 +362,45 @@ async function sendMessageWithLoader() {
      * @param {number} discussionId The ID of the discussion
      * @returns {void} or response of the fetch
      */
-    function deleteMessage(messageId, discussionId) {
-        if (!messageId || !discussionId) {
-            alert("Informations de message ou discussion manquantes.");
-            return;
+    async function deleteMessage(messageId, discussionId) {
+    if (!messageId || !discussionId) {
+        alert("Informations de message ou discussion manquantes.");
+        return;
+    }
+    console.log("messageId", messageId)
+    
+    if(messageId >= 10000000)
+    {
+        const response = await fetch(`/chat/${discussionId}/${messageId - 10000000}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
+    });
+    }
+    else{
+        const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+    }
 
-        // Send the request to delete the message
-        fetch(`/chat/${discussionId}/${messageId}/delete`, {
-            method: 'DELETE',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => {
-            if (!response.ok) {
-                console.error("Erreur de suppression, statut:", response.status);
-                throw new Error("Impossible de supprimer le message.");
-            }
-            return response.json();
-        })
-        .then(data => {
-            currentChatId = null;
-
-            document.getElementById('chat-area').style.display = 'none';
-            document.getElementById('chat-placeholder').style.display = 'flex';
-
-            location.reload();
-            const messageElement = document.getElementById(`message-div-${messageId}`);
-            if (messageElement) {
-                messageElement.remove();
-            }
-        })
-        .catch(error => {
-            console.error("Erreur lors de la suppression :", error);
-            alert("Une erreur s'est produite lors de la suppression du message.");
-        });
+    if (!response.ok) {
+        console.error("Erreur de suppression, statut:", response.status);
+        throw new Error("Impossible de supprimer le message.");
+    }
+ 
+    const messageElement = document.getElementById(`message-div-${messageId}`);
+    if (messageElement) {
+        messageElement.remove();
+    }
 }
+
+
 function leaveChatWithLoad()
 {
     const loader = document.getElementById('leave-chat-loader');
@@ -409,24 +420,23 @@ function leaveChatWithLoad()
         });
 }
 
-function deleteMessageWithLoader(messageId, chatId) {
+async function deleteMessageWithLoader(messageId, chatId) {
     const loader = document.getElementById(`loader-${messageId}`);
-    const button = event.target;  
-    button.style.display = 'none';  
-    loader.style.display = 'inline';  
-    
-    
-    deleteMessage(messageId, chatId)
-        .then(() => {
-            loader.style.display = 'none';  
-            button.style.display = 'inline'; 
-        })
-        .catch((error) => {
-            console.error(error);
-            loader.style.display = 'none';  
-            button.style.display = 'inline'; 
-        });
-}
+    const button = event.target;
+
+    button.style.display = 'none';
+    loader.style.display = 'inline';
+
+    try {
+        await deleteMessage(messageId, chatId);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        loader.style.display = 'none';
+        button.style.display = 'inline';
+    }
+}   
+
 
     /**
      * Function to update the file name in the form
