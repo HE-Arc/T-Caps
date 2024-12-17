@@ -93,14 +93,12 @@
                 friends: false,
             },
             validateForm() {
-                // Réinitialise l'erreur des amis
                 this.errors.friends = this.selectedFriends.length === 0;
                 let createChatBtn = document.getElementById('create-chat');
                 let createChatLoader = document.getElementById('create-chat-loader');
                 createChatBtn.style.display = 'none';
                 createChatLoader.style.display = 'block';
                 if (!this.errors.friends) {
-                    // Soumet le formulaire si la validation passe
                     this.$el.submit();
                 }
                 createChatBtn.style.display = 'block';

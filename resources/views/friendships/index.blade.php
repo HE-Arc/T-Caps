@@ -1,7 +1,6 @@
 <x-app-layout>
     <x-friendships.navbar-friends />
 
-    <!-- Décalage du contenu pour éviter la superposition avec la barre rouge -->
     <div class="mt-4 pt-10 w-full">
         @if (session('error'))
             <div class="bg-red-500 text-white p-4 rounded mb-4 mx-4">
@@ -15,9 +14,8 @@
             </div>
         @endif
 
-        <!-- Liste d'amis en format ligne pleine largeur avec séparateurs -->
         @if ($friends->isEmpty())
-            <p class="text-white px-4">You have no friends yet.</p>
+            <p class="text-white px-4">Vous n'avez pas encore ajouté d'ami</p>
         @else
             @foreach ($friends as $friend)
                 <div class="flex items-center justify-between py-4 border-b border-gray-300 w-full px-4">
@@ -28,7 +26,8 @@
                         @if ($image)
                             <img src="{{ asset('storage/' . $image) }}" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
                         @else
-                            <img src="{{ asset('source/assets/avatar/avatar.png') }}" alt="Avatar" class="w-8 h-8 rounded-full mr-3">
+                            <img src="{{ asset('source/assets/avatar/avatar.png') }}" alt="Avatar"
+                                class="w-8 h-8 rounded-full mr-3">
                         @endif
 
                         <span class="text-white">
@@ -37,21 +36,57 @@
                     </div>
 
                     <div class="flex space-x-2">
-                        <!-- Boutons d'action en icônes -->
-                            <form action="{{ route('friends.destroy', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to remove this friend?');">
+                        <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'delete-modal-{{ $friend->id }}')"
+                            class="flex items-center justify-center">
+                            <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer"
+                                class="h-10 w-10">
+                        </button>
+                        <x-modal name="delete-modal-{{ $friend->id }}" focusable>
+                            <form
+                                action="{{ route('friends.destroy', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}"
+                                method="POST" class="p-6">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit">
-                                    <img src="{{ asset('source/assets/images/delete_friend_icon.png') }}" alt="Supprimer" class="h-10 w-10">
-                                </button>
-                            </form>
+                                <div class="mb-4">
+                                    <p class="text-white text-center">Etes-vous sûr de vouloir supprimer cet ami ?
+                                </div>
 
-                            <form action="{{ route('friends.block', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to block this user?');">
-                                @csrf
-                                <button type="submit">
-                                    <img src="{{ asset('source/assets/images/block_icon.png') }}" alt="Block" class="h-10 w-10">
-                                </button>
+                                <div class="mt-6 flex justify-center">
+                                    <x-secondary-button x-on:click="$dispatch('close')">
+                                        Non
+                                    </x-secondary-button>
+                                    <x-primary-button id="delete-friend" class="ml-3">
+                                        Oui
+                                    </x-primary-button>
+                                </div>
                             </form>
+                        </x-modal>
+
+                        <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'block-modal-{{ $friend->id }}')"
+                            class="flex items-center justify-center">
+                            <img src="{{ asset('source/assets/images/block_icon.png') }}" alt="Block"
+                                    class="h-10 w-10">
+                        </button>
+                        <x-modal name="block-modal-{{ $friend->id }}" focusable>
+                            <form
+                                action="{{ route('friends.block', ['friend' => $friend->user_id == Auth::id() ? $friend->friend->id : $friend->user->id]) }}"
+                                method="POST" class="p-6">
+                                @csrf
+                                <div class="mb-4">
+                                    <p class="text-white text-center">Etes-vous sûr de vouloir bloquer cet ami ?
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="mt-6 flex justify-center">
+                                    <x-secondary-button x-on:click="$dispatch('close')">
+                                        Non
+                                    </x-secondary-button>
+                                    <x-primary-button id="block-friend" class="ml-3">
+                                        Oui
+                                    </x-primary-button>
+                                </div>
+                            </form>
+                        </x-modal>
                     </div>
                 </div>
             @endforeach

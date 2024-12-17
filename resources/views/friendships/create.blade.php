@@ -7,7 +7,7 @@
             <div class="space-y-2">
                 <input type="text" name="name" id="name" value="{{ old('name') }}" required
                     class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
-                    placeholder="Enter friend's username">
+                    placeholder="Entrer le nom d'utilisateur">
 
                 @error('name')
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -16,7 +16,7 @@
 
             <div>
                 <button id="add-friend-btn" type="submit" class="w-full text-white py-2 secondary-background-app transition-colors duration-200" onclick="addFriendWithLoad()">
-                    Add Friend
+                    Ajouter un ami
                 </button>
                 <span id="add-friend-loader" style="display:none;">
                     <div class="spinner"></div>

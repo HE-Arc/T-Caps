@@ -63,7 +63,7 @@ class FriendshipsController extends Controller
 
     /**
      * Store a newly created friendship in storage.
-     * 
+     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
@@ -76,7 +76,7 @@ class FriendshipsController extends Controller
         $friend = User::where('name', $validated['name'])->first();
 
         if ($friend->id === Auth::id()) {
-            return back()->with('error', 'You cannot add yourself.');
+            return back()->with('error', 'Vous ne pouvez pas vous ajouter vous même');
         }
 
         $friendshipExists = Friendship::where(function ($query) use ($friend) {
@@ -88,7 +88,7 @@ class FriendshipsController extends Controller
         })->exists();
 
         if ($friendshipExists) {
-            return back()->with('error', 'You are already friends, blocked or a request is pending.');
+            return back()->with('error', 'Vous êtes déjà amis, bloqué ou une demande est en attente.');
         }
 
         Friendship::create([
@@ -97,12 +97,12 @@ class FriendshipsController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Friend request sent !');
+        return back()->with('success', 'Demande d\'ami envoyée !');
     }
 
     /**
      * Accept a friendship request.
-     * 
+     *
      * @param  int  $friendship_id
      * @return \Illuminate\Http\Response
      */
@@ -113,15 +113,15 @@ class FriendshipsController extends Controller
         if ($friendship && $friendship->status === 'pending') {
             // Met à jour le statut directement
             $friendship->update(['status' => 'accepted']);
-            return back()->with('success', 'Friend request accepted!');
+            return back()->with('success', 'Demande d\'ami acceptée!');
         }
 
-        return back()->with('error', 'Could not accept the friend request.');
+        return back()->with('error', 'La demande d\'ami n\'a pas pu être acceptée');
     }
 
     /**
      * Decline a friendship request.
-     * 
+     *
      * @param  int  $friendship_id
      * @return \Illuminate\Http\Response
      */
@@ -131,15 +131,15 @@ class FriendshipsController extends Controller
 
         if ($friendship) {
             $friendship->delete();
-            return back()->with('success', 'Friend request declined!');
+            return back()->with('success', 'Demande d\'ami refusée');
         }
 
-        return back()->with('error', 'Could not decline the friend request.');
+        return back()->with('error', 'La demande d\'ami n\'a pas pu être refusée');
     }
 
     /**
      * Remove the specified friendship from storage.
-     * 
+     *
      * @param  int  $friend
      * @return \Illuminate\Http\Response
      */
@@ -155,15 +155,15 @@ class FriendshipsController extends Controller
 
         if ($friendship) {
             $friendship->delete();
-            return back()->with('success', 'Friend removed successfully!');
+            return back()->with('success', 'Succès de la suppression de l\'ami');
         }
 
-        return back()->with('error', 'Could not find the friend to remove.');
+        return back()->with('error', 'Impossible de supprimer l\'ami');
     }
 
     /**
      * Block a user.
-     * 
+     *
      * @param  int  $friend
      * @return \Illuminate\Http\Response
      */
@@ -172,7 +172,7 @@ class FriendshipsController extends Controller
         $friend = User::findOrFail($friend);
 
         if ($friend->id === Auth::id()) {
-            return back()->with('error', 'You cannot block yourself.');
+            return back()->with('error', 'Impossible de vous bloquer vous même');
         }
 
         $friendship = Friendship::where(function ($query) use ($friend) {
@@ -185,10 +185,10 @@ class FriendshipsController extends Controller
 
         if ($friendship) {
             if ($friendship->status === 'blocked') {
-                return back()->with('error', 'This user is already blocked.');
+                return back()->with('error', 'Cet utilisateur est déjà bloqué');
             }
             $friendship->update(['status' => 'blocked']);
-            return back()->with('success', 'User blocked successfully!');
+            return back()->with('success', 'Utilisateur bloqué');
         } else {
             // Create a new friendship with 'blocked' status if no existing relation is found
             Friendship::create([
@@ -196,7 +196,7 @@ class FriendshipsController extends Controller
                 'friend_id' => $friend->id,
                 'status' => 'blocked',
             ]);
-            return back()->with('success', 'User blocked successfully!');
+            return back()->with('success', 'Utilisateur bloqué');
         }
     }
 }
