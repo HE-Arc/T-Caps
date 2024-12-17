@@ -276,10 +276,22 @@ class ChatController extends Controller
         if (Message::find($message->id + 10000000))
         {
             $capsule = Message::where('id', $messageId + 10000000)->where('chat_id', $discussionId)->first();
+            if ($message->media_url) {
+                $mediaPath = public_path('source/assets/media/' . $message->media_url);
+                if (file_exists($mediaPath)) {
+                    unlink($mediaPath); 
+                }
+            }
             $capsule->delete();
             $message->delete();
         }
         else{
+            if ($message->media_url) {
+                $mediaPath = public_path("/source/media/" . $message->media_url);
+                if (file_exists($mediaPath)) {
+                    unlink($mediaPath); 
+                }
+            }
             $message->delete();
         }
 
