@@ -17,7 +17,7 @@
                 @csrf
                 <input type="hidden" id="discussion-id" name="discussion_id" value="CHAT_ID">
                 <h3 class="text-lg font-semibold text-gray-300 mb-5">Créer une capsule</h3>
-                <!-- Field for the file of the capsule -->
+
                 <div class="flex items-center justify-center h-full w-full">
                     <div class="border-dashed border-4 border-gray-500 rounded-lg bg-gray-900 hover:bg-gray-700 transition duration-300" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
                         <label for="file" class="flex flex-col items-center justify-center cursor-pointer h-full w-full">
@@ -29,7 +29,7 @@
                         <input id="file" name="file" type="file" class="inset-0 opacity-0 cursor-pointer" accept=".jpeg,.png,.jpg,.gif,.mp3,.mp4,.mov" onchange="updateFileName()" x-model="file" required>
                     </div>
                 </div>
-                <!-- Field for the message of the capsule -->
+
                 <div class="mb-4">
                     <x-input-label for="message" value="Message" />
                     <x-text-input id="message" name="message" type="text" class="block w-full mt-1" x-model="chatMessage" required />
@@ -38,7 +38,7 @@
                         <input type="datetime-local" id="date-time" name="date_time" class="block w-full mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
                     </div>
                 </div>
-                <!-- Action buttons -->
+
                 <div class="mt-6 flex justify-end">
                     <x-secondary-button x-on:click="$dispatch('close'); document.getElementById('create-file-modal-form').reset(); document.getElementById('file-info').innerHTML = '<p class=&quot;text-gray-300 font-medium&quot;>Glissez et déposez votre fichier ici ou</p><p class=&quot;text-blue-400 underline&quot;>cliquez pour sélectionner un fichier</p>';">
                         Annuler

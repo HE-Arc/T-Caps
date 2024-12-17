@@ -9,8 +9,18 @@ class Message extends Model
 {
     use HasFactory;
 
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
     protected $table = 'messages';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'message',
         'chat_id',
@@ -18,7 +28,10 @@ class Message extends Model
     ];
 
     /**
-     * Chat where message was sent
+     * Get the chat that the message belongs to.
+     *
+     * This method defines the relationship between the Message model and the Chat model.
+     * A message belongs to a chat, identified by the 'chat_id'.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -27,7 +40,15 @@ class Message extends Model
         return $this->belongsTo(Chat::class);
     }
 
-    public function user()  // Utiliser 'user()' au lieu de 'users()'
+    /**
+     * Get the user that sent the message.
+     *
+     * This method defines the relationship between the Message model and the User model.
+     * A message belongs to a user, identified by the 'user_id'.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

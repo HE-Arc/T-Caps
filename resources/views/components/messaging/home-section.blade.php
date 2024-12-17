@@ -1,8 +1,6 @@
 <div class="flex flex-col items-center justify-center h-full w-full text-white bg-gray-800 bg-cover bg-center messagesBackground">
-    <!-- Logo -->
     <img src="{{ asset('source/assets/images/logo.png') }}" alt="Logo" class="w-[30%] mb-6" />
 
-    <!-- Text description of the application -->
     <p class="text-center text-xl font-semibold w-[75%]">
         Bienvenue sur T-CAPS !
     </p>

@@ -76,7 +76,6 @@
                                     <p class="text-white text-center">Etes-vous sûr de vouloir bloquer cet ami ?
                                 </div>
 
-                                <!-- Action buttons -->
                                 <div class="mt-6 flex justify-center">
                                     <x-secondary-button x-on:click="$dispatch('close')">
                                         Non

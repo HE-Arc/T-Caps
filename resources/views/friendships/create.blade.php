@@ -24,7 +24,6 @@
 
             </div>
 
-            <!-- Affichage du message de succès ou d'erreur sous le champ de saisie -->
             <div>
                 @if(session('success'))
                 <p class="text-green-500 mt-1">

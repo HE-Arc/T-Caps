@@ -10,7 +10,6 @@
             En attente
         </a>
     </div>
-    <!-- Bouton "Ajouter" aligné à droite -->
     <div class="ml-auto">
         <a href="{{ route('friends.create') }}" class="text-white btn-inactive font-semibold py-1 px-3 rounded-full
             {{ Route::currentRouteName() === 'friends.create' ? 'btn-active' : 'btn-inactive' }}">

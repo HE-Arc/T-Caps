@@ -1,11 +1,3 @@
-@php
-    $members = [
-        ['name' => 'Jean Dupont', 'avatar' => 'https://via.placeholder.com/40'],
-        ['name' => 'Marie Curie', 'avatar' => 'https://via.placeholder.com/40'],
-        ['name' => 'Albert Einstein', 'avatar' => 'https://via.placeholder.com/40'],
-    ];
-@endphp
-
 <div class="flex background-app border-b border-black h-12 items-center justify-between p-4 gap-x-4">
     <div class="flex items-center gap-x-4">
         <img src="" alt="Discussion Picture" class="w-10 h-10 rounded-full headerImage">

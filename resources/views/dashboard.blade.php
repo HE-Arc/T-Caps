@@ -10,7 +10,7 @@
 
         <!-- Chat section (initially hidden) -->
         <div id="chat-area" class="flex-1 background-app flex flex-col h-full relative hidden">
-            <x-messaging.header/>
+            <x-messaging.header />
             <x-messaging.messages />
             <x-messaging.chatbar />
         </div>
@@ -27,7 +27,7 @@
 
     /**
      * Function to load a chat
-     * 
+     *
      * @param {number} chatId The ID of the chat
      * @param {string} discussionName The name of the chat
      * @param {string} discussionPicture The picture of the chat
@@ -62,7 +62,7 @@
             if (headerTitle) headerTitle.textContent = discussionName;
 
             const headerImage = document.querySelector('.headerImage');
-            if(headerImage) headerImage.src = discussionPicture;
+            if (headerImage) headerImage.src = discussionPicture;
 
             if (members && Array.isArray(members)) {
                 const membersList = document.getElementById('members-list');
@@ -71,7 +71,8 @@
                     members.forEach(member => {
                         const listItem = document.createElement('li');
                         const memberName = member.name + ({{ auth()->id() }} == member.id ? " (Moi)" : "");
-                        const avatarUrl = member.image ? `/storage/${member.image}` : `/source/assets/avatar/avatar.png`;
+                        const avatarUrl = member.image ? `/storage/${member.image}` :
+                            `/source/assets/avatar/avatar.png`;
 
                         listItem.className = 'flex items-center gap-x-3';
                         listItem.innerHTML = `
@@ -111,7 +112,8 @@
 
                 // Get the scroll position and check if we are at the bottom
                 // Useful to know if we should scroll to the bottom after adding new messages or if the user is viewing old messages
-                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 0.6;
+                const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer
+                    .clientHeight + 0.6;
 
                 // Go through the messages and add them to the messages container
                 newMessages.forEach(message => {
@@ -135,9 +137,11 @@
                     const messageId = message.id;
                     // We check if the <p> with the id message-${message.id} has a message.id corresponding to messageId-10000000 and modify its content if necessary
                     if (document.getElementById(`message-${messageId-10000000}`)) {
-                        document.getElementById(`message-${messageId-10000000}`).innerHTML = `🔓 Ce message a été ouvert le ${prettyOpeningDate}`;
+                        document.getElementById(`message-${messageId-10000000}`).innerHTML =
+                            `🔓 Ce message a été ouvert le ${prettyOpeningDate}`;
                     }
-                    messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
+                    messageElement.className =
+                        `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} mb-2`;
 
                     // Building the message content
                     let messageContent = `
@@ -157,7 +161,7 @@
                                 🗑️
                             </button>
                             <span id="loader-${message.id}" style="display:none;">
-                                 <div class="spinner"></div> 
+                                 <div class="spinner"></div>
                             </span>`;
                     }
 
@@ -170,7 +174,8 @@
                             `
                 <div class="max-w-[45%] ${isCurrentUser ? 'secondary-background-app rounded-tl-lg' : 'tertiary-background-app rounded-tr-lg'} text-white p-2 rounded-bl-lg rounded-br-lg">
                     <span class="text-xs text-white block mb-1 font-bold">${message.user.name}</span>`;
-                        if (message.media_url.endsWith('.mp4') || message.media_url.endsWith('.mov') || message.media_url.endsWith('.MOV')) {
+                        if (message.media_url.endsWith('.mp4') || message.media_url.endsWith('.mov') ||
+                            message.media_url.endsWith('.MOV')) {
                             mediaElement += `
                     <video controls preload="none" class="w-full" poster="{{ asset('source/assets/images/') }}/video.png">
                         <source src="{{ asset('source/media/') }}/${message.media_url}" type="video/mp4">
@@ -181,7 +186,7 @@
                         <source src="{{ asset('source/media/') }}/${message.media_url}" type="audio/mpeg">
                         Your browser does not support the audio element.
                     </audio>`;
-                        }else {
+                        } else {
                             mediaElement += `
                     <img src="{{ asset('source/media/') }}/${message.media_url}" class="w-full rounded-lg">`;
                         }
@@ -192,17 +197,17 @@
                     </p>
                     <span class="text-xs text-white block mb-1 font-bold text-right">${prettyDate}</span>
                 </div>`;
-                if (isCurrentUser){
-                    mediaElement += `   <button onclick="deleteMessageWithLoader(${message.id}, ${chatId})"
+                        if (isCurrentUser) {
+                            mediaElement += `   <button onclick="deleteMessageWithLoader(${message.id}, ${chatId})"
                                             class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                                             title="Supprimer le message">
                                             🗑️
                                         </button>
                                          <span id="loader-${message.id}"  style="display:none;">
-                                            <div class="spinner"></div> 
+                                            <div class="spinner"></div>
                                          </span>`;
-                }
-                    messageElement.innerHTML = mediaElement;
+                        }
+                        messageElement.innerHTML = mediaElement;
                     }
 
                     // add to messageElement the chatId of the message to be able to delete it later
@@ -216,7 +221,8 @@
                 deletedMessages.forEach(message => {
                     const messageElement = document.getElementById(`message-div-${message.id}`);
                     if (messageElement) {
-                        messageElement.innerHTML = `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
+                        messageElement.innerHTML =
+                            `<p class="text-gray-500 italic">Ce message a été supprimé.</p>`;
                     }
                 });
 
@@ -251,7 +257,7 @@
 
     /**
      * Function to start the auto-refresh of the chat (getting messages)
-     * 
+     *
      * @param {number} interval The interval in milliseconds between each refresh
      * @returns {void}
      */
@@ -265,59 +271,59 @@
         }, interval);
     }
 
-/**
- * Function to send a message
- * 
- * @returns {Promise<void>}
- */
-async function sendMessage() {
-    const messageContent = document.getElementById('message-content').value;
-    if (!messageContent) return;
+    /**
+     * Function to send a message
+     *
+     * @returns {Promise<void>}
+     */
+    async function sendMessage() {
+        const messageContent = document.getElementById('message-content').value;
+        if (!messageContent) return;
 
-    try {
-        await fetch(`/chat/${currentChatId}/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                message: messageContent
-            })
-        });
-        document.getElementById('message-content').value = '';
-    } catch (error) {
-        console.error('Erreur:', error);
+        try {
+            await fetch(`/chat/${currentChatId}/messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    message: messageContent
+                })
+            });
+            document.getElementById('message-content').value = '';
+        } catch (error) {
+            console.error('Erreur:', error);
+        }
     }
-}
 
-/**
- * Function to send a message with a loader
- * 
- * @returns {void}  
- */
-async function sendMessageWithLoader() {
-    const sendButton = document.getElementById('send-message-btn');
-    const loader = document.getElementById('send-message-loader');
-    
-    sendButton.style.display = 'none';
-    loader.style.display = 'block';
+    /**
+     * Function to send a message with a loader
+     *
+     * @returns {void}
+     */
+    async function sendMessageWithLoader() {
+        const sendButton = document.getElementById('send-message-btn');
+        const loader = document.getElementById('send-message-loader');
 
-    try {
-        await sendMessage();
-    } catch (error) {
-        console.error('Erreur lors de l\'envoi du message:', error);
-    } finally {
-        sendButton.style.display = 'block';
-        loader.style.display = 'none';
+        sendButton.style.display = 'none';
+        loader.style.display = 'block';
+
+        try {
+            await sendMessage();
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+        } finally {
+            sendButton.style.display = 'block';
+            loader.style.display = 'none';
+        }
     }
-}
 
 
     /**
      * Function to scroll to the bottom of the messages container
-     * 
+     *
      * @returns {void}
      */
     function scrollToBottom() {
@@ -329,7 +335,7 @@ async function sendMessageWithLoader() {
 
     /**
      * Function to leave a chat
-     * 
+     *
      * @returns {void} or response of the fetch
      */
     function leaveChat() {
@@ -369,104 +375,102 @@ async function sendMessageWithLoader() {
 
     /**
      * Function to delete a message
-     * 
+     *
      * @param {number} messageId The ID of the message
      * @param {number} discussionId The ID of the discussion
      * @returns {void} or response of the fetch
      */
     async function deleteMessage(messageId, discussionId) {
-    if (!messageId || !discussionId) {
-        alert("Informations de message ou discussion manquantes.");
-        return;
-    }
-    
-    // if the message has an id greater than 10000000, it means it is a capsule message
-    // so we need to delete the message with the id - 10000000 to delete the original message
-    if(messageId >= 10000000)
-    {
-        const response = await fetch(`/chat/${discussionId}/${messageId - 10000000}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        if (!messageId || !discussionId) {
+            alert("Informations de message ou discussion manquantes.");
+            return;
         }
-    });
-    }
-    // if the message has an id less than 10000000, it means it is a normal message
-    else{
-        const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+
+        // if the message has an id greater than 10000000, it means it is a capsule message
+        // so we need to delete the message with the id - 10000000 to delete the original message
+        if (messageId >= 10000000) {
+            const response = await fetch(`/chat/${discussionId}/${messageId - 10000000}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
         }
-    });
+        // if the message has an id less than 10000000, it means it is a normal message
+        else {
+            const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
+                method: 'DELETE',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            });
+        }
+
+        if (!response.ok) {
+            console.error("Erreur de suppression, statut:", response.status);
+            throw new Error("Impossible de supprimer le message.");
+        }
+
+        const messageElement = document.getElementById(`message-div-${messageId}`);
+        if (messageElement) {
+            messageElement.remove();
+        }
     }
 
-    if (!response.ok) {
-        console.error("Erreur de suppression, statut:", response.status);
-        throw new Error("Impossible de supprimer le message.");
+
+    /**
+     * Function to leave a chat with a loader
+     *
+     * @returns {void}
+     */
+    function leaveChatWithLoad() {
+        const loader = document.getElementById('leave-chat-loader');
+        const button = event.target;
+        button.style.display = 'none';
+        loader.style.display = 'inline';
+
+        leaveChat()
+            .then(() => {
+                loader.style.display = 'none';
+                button.style.display = 'inline';
+            })
+            .catch((error) => {
+                console.error(error);
+                loader.style.display = 'none';
+                button.style.display = 'inline';
+            });
     }
-    
-    const messageElement = document.getElementById(`message-div-${messageId}`);
-    if (messageElement) {
-        messageElement.remove();
-    }
-}
 
+    /**
+     * Function to delete a message with a loader
+     *
+     * @param {number} messageId The ID of the message
+     * @param {number} chatId The ID of the chat
+     * @returns {void}
+     */
+    async function deleteMessageWithLoader(messageId, chatId) {
+        const loader = document.getElementById(`loader-${messageId}`);
+        const button = event.target;
 
-/**
- * Function to leave a chat with a loader
- * 
- * @returns {void}
- */
-function leaveChatWithLoad()
-{
-    const loader = document.getElementById('leave-chat-loader');
-    const button = event.target;
-    button.style.display = 'none';
-    loader.style.display = 'inline';
+        button.style.display = 'none';
+        loader.style.display = 'inline';
 
-    leaveChat()
-        .then(() => {
-            loader.style.display = 'none';
-            button.style.display = 'inline';
-        })
-        .catch((error) => {
+        try {
+            await deleteMessage(messageId, chatId);
+        } catch (error) {
             console.error(error);
+        } finally {
             loader.style.display = 'none';
             button.style.display = 'inline';
-        });
-}
-
-/**
- * Function to delete a message with a loader
- * 
- * @param {number} messageId The ID of the message
- * @param {number} chatId The ID of the chat
- * @returns {void}
- */
-async function deleteMessageWithLoader(messageId, chatId) {
-    const loader = document.getElementById(`loader-${messageId}`);
-    const button = event.target;
-
-    button.style.display = 'none';
-    loader.style.display = 'inline';
-
-    try {
-        await deleteMessage(messageId, chatId);
-    } catch (error) {
-        console.error(error);
-    } finally {
-        loader.style.display = 'none';
-        button.style.display = 'inline';
+        }
     }
-}   
 
 
     /**
      * Function to update the file name in the form
-     * 
+     *
      * @returns {void}
      */
     function updateFileName() {
@@ -481,7 +485,7 @@ async function deleteMessageWithLoader(messageId, chatId) {
 
     /**
      * Function to handle the drag over event for the file drop
-     * 
+     *
      * @param {Event} event The event object
      * @returns {void}
      */
@@ -491,7 +495,7 @@ async function deleteMessageWithLoader(messageId, chatId) {
 
     /**
      * Function to handle the drop event for the file drop
-     * 
+     *
      * @param {Event} event The event object
      * @returns {void}
      */
@@ -509,7 +513,7 @@ async function deleteMessageWithLoader(messageId, chatId) {
 
     /**
      * Function to handle the capsule form
-     * 
+     *
      * @returns {void}
      */
     function capsuleForm() {
@@ -533,36 +537,36 @@ async function deleteMessageWithLoader(messageId, chatId) {
 
                 // Send the request to create the capsule
                 fetch(`/chat/${discussionId}/capsule`, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.message.id) {
-                        // Close the modal and reset the form
-                        this.chatMessage = '';
-                        this.file = null;
-                        document.getElementById('file-info').innerHTML = `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
-                        document.getElementById('date-time').value = '';
-                        this.$dispatch('close');
-                    } else {
-                        console.log(data)
-                        alert('Erreur lors de l\'envoi de la capsule');
-                    }
-                })
-                .catch(error => {
-                    alert('Erreur lors de l\'envoi');
-                    console.error(error);
-                });
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message.id) {
+                            // Close the modal and reset the form
+                            this.chatMessage = '';
+                            this.file = null;
+                            document.getElementById('file-info').innerHTML =
+                                `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
+                            document.getElementById('date-time').value = '';
+                            this.$dispatch('close');
+                        } else {
+                            console.log(data)
+                            alert('Erreur lors de l\'envoi de la capsule');
+                        }
+                    })
+                    .catch(error => {
+                        alert('Erreur lors de l\'envoi');
+                        console.error(error);
+                    });
             }
         };
     }
 
     // Load the chat when the page is loaded (auto-refresh)
     startAutoRefresh(interval);
-    </script>
-    
+</script>
