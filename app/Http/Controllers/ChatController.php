@@ -273,8 +273,15 @@ class ChatController extends Controller
         if ($message->user_id !== auth()->id()) {
             return response()->json(['error' => 'Unauthorized.'], 403);
         }
-
-        $message->delete();
+        if (Message::find($message->id + 10000000))
+        {
+            $capsule = Message::where('id', $messageId + 10000000)->where('chat_id', $discussionId)->first();
+            $capsule->delete();
+            $message->delete();
+        }
+        else{
+            $message->delete();
+        }
 
         return response()->json(['message' => 'Message deleted successfully.']);
     }

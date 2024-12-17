@@ -367,14 +367,27 @@ async function sendMessageWithLoader() {
         alert("Informations de message ou discussion manquantes.");
         return;
     }
-
-    const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
+    console.log("messageId", messageId)
+    
+    if(messageId >= 10000000)
+    {
+        const response = await fetch(`/chat/${discussionId}/${messageId - 10000000}/delete`, {
         method: 'DELETE',
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         }
     });
+    }
+    else{
+        const response = await fetch(`/chat/${discussionId}/${messageId}/delete`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    });
+    }
 
     if (!response.ok) {
         console.error("Erreur de suppression, statut:", response.status);
