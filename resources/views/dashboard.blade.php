@@ -149,7 +149,7 @@
                     // Adding the trash for the user's messages
                     if (isCurrentUser) {
                         messageContent += `
-                            <button onclick="deleteMessage(${message.id}, ${chatId})"
+                            <button onclick="deleteMessageWithLoader(${message.id}, ${chatId})"
                                 class="ml-2 text-red-500 hover:text-red-700 focus:outline-none"
                                 title="Supprimer le message">
                                 🗑️
@@ -313,7 +313,6 @@
                 }
             })
             .then(data => {
-                alert(data.message || "Vous avez quitté la conversation.");
                 currentChatId = null;
 
                 document.getElementById('chat-area').style.display = 'none';
@@ -362,7 +361,6 @@
             document.getElementById('chat-placeholder').style.display = 'flex';
 
             location.reload();
-            alert(data.message || "Message supprimé.");
             const messageElement = document.getElementById(`message-div-${messageId}`);
             if (messageElement) {
                 messageElement.remove();
@@ -390,39 +388,6 @@ function leaveChatWithLoad()
             loader.style.display = 'none';
             button.style.display = 'inline';
         });
-}
-
-function deleteMessage(messageId, discussionId) {
-    if (!messageId || !discussionId) {
-        alert("Informations de message ou discussion manquantes.");
-        return;
-    }
-
-    fetch(`/chat/${discussionId}/${messageId}/delete`, {
-        method: 'DELETE',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            console.error("Erreur de suppression, statut:", response.status);
-            throw new Error("Impossible de supprimer le message.");
-        }
-        return response.json();
-    })
-    .then(data => {
-        const messageElement = document.getElementById(`message-div-${messageId}`);
-        if (messageElement) {
-            messageElement.remove();
-        }
-        loadChat(discussionId, null, null, false);
-    })
-    .catch(error => {
-        console.error("Erreur lors de la suppression :", error);
-        alert("Une erreur s'est produite lors de la suppression du message.");
-    });
 }
 
 function deleteMessageWithLoader(messageId, chatId) {

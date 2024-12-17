@@ -31,6 +31,9 @@
                 onclick="leaveChatWithLoad()">
                 Quitter le groupe
             </button>
+            <span id="leave-chat-loader" style="display:none;">
+                    <div class="spinner"></div>
+            </span>
             <x-secondary-button x-on:click="$dispatch('close')">
                 Fermer
             </x-secondary-button>
