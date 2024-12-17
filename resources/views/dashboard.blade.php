@@ -20,7 +20,7 @@
 <script>
     let currentChatId = null;
     // This is the interval in milliseconds for the chat auto-refresh (getting messages)
-    let interval = 5000;
+    let interval = 500;
     let allMessages = [];
 
     /**
