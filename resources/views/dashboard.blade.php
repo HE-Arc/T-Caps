@@ -243,36 +243,55 @@
         }, interval);
     }
 
-    /**
-     * Function to send a message
-     * 
-     * @returns {void}
-     */
-    function sendMessage() {
-        const messageContent = document.getElementById('message-content').value;
-        document.getElementById('send-message-btn').style.display = 'none';
-        document.getElementById('send-message-loader').style.display = 'block';
-        if (!messageContent) return;
+/**
+ * Function to send a message
+ * 
+ * @returns {Promise<void>}
+ */
+async function sendMessage() {
+    const messageContent = document.getElementById('message-content').value;
+    if (!messageContent) return;
 
-        // Send the message to the server
-        fetch(`/chat/${currentChatId}/messages`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: JSON.stringify({
-                    message: messageContent
-                })
+    try {
+        await fetch(`/chat/${currentChatId}/messages`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                message: messageContent
             })
-            .then(() => {
-                document.getElementById('message-content').value = '';
-            })
-            .catch(error => console.error('Erreur:', error));
-        document.getElementById('send-message-btn').style.display = 'block';
-        document.getElementById('send-message-loader').style.display = 'none';
+        });
+        document.getElementById('message-content').value = '';
+    } catch (error) {
+        console.error('Erreur:', error);
     }
+}
+
+/**
+ * Function to send a message with a loader
+ * 
+ * @returns {void}  
+ */
+async function sendMessageWithLoader() {
+    const sendButton = document.getElementById('send-message-btn');
+    const loader = document.getElementById('send-message-loader');
+    
+    sendButton.style.display = 'none';
+    loader.style.display = 'block';
+
+    try {
+        await sendMessage();
+    } catch (error) {
+        console.error('Erreur lors de l\'envoi du message:', error);
+    } finally {
+        sendButton.style.display = 'block';
+        loader.style.display = 'none';
+    }
+}
+
 
     /**
      * Function to scroll to the bottom of the messages container
