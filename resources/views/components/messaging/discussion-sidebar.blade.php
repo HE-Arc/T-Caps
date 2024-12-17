@@ -15,7 +15,7 @@
                         <form method="post" action="{{ route('chats.store') }}" class="p-6" x-data="chatForm()"
                             x-on:submit.prevent="validateForm">
                             @csrf
-                            <!-- Champ pour le nom du chat -->
+                            <!-- Chat name field -->
                             <div class="mb-4">
                                 <x-input-label for="chat-name" value="Nom de la discussion" />
                                 <x-text-input id="chat-name" name="chat_name" type="text" class="block w-full mt-1"
@@ -23,7 +23,7 @@
                                 <p x-show="errors.chatName" class="text-red-500 text-sm mt-1">Le nom de la discussion
                                     est requis.</p>
                             </div>
-                            <!-- Liste des amis avec des cases à cocher -->
+                            <!-- Friends list with checkboxes -->
                             <div class="mb-4">
                                 <p class="font-medium text-white">Sélectionnez le/les amis à ajouter à la discussion</p>
                                 <div class="mt-2 overflow-y-auto max-h-48 scrollbar-hide rounded p-2">
@@ -48,7 +48,7 @@
                                         un ami.</p>
                                 </div>
                             </div>
-                            <!-- Boutons d'action -->
+                            <!-- Action buttons -->
                             <div class="mt-6 flex justify-end">
                                 <x-secondary-button x-on:click="$dispatch('close')">
                                     Annuler
@@ -66,18 +66,18 @@
             </div>
         </li>
         @foreach ($discussions as $discussion)
-        <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer"
-            onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ true }})">
-            <img src="{{ $discussion->discussionPicture }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 flex-shrink-0">
-            <!-- Ajout de flex-shrink-0 pour éviter que l'image rétrécisse -->
-            <div class="flex-1">
-                <div class="font-bold">{{ $discussion->name }}</div>
-                <div class="text-sm text-gray-400 whitespace-nowrap">
-                    @if ($discussion->messages->first())
-                    {{ $discussion->messages->first()->message }}
-                    @endif
+            <li class="flex items-center p-2 border-b border-black overflow-hidden mr-2 cursor-pointer"
+                onclick="loadChat({{ $discussion->id }}, '{{ $discussion->name }}', '{{ $discussion->discussionPicture }}', {{ $discussion->members }}, {{ true }})">
+                <img src="{{ $discussion->discussionPicture }}" alt="Avatar" class="w-10 h-10 rounded-full mr-3 flex-shrink-0">
+                <!-- Ajout de flex-shrink-0 pour éviter que l'image rétrécisse -->
+                <div class="flex-1">
+                    <div class="font-bold">{{ $discussion->name }}</div>
+                    <div class="text-sm text-gray-400 whitespace-nowrap">
+                        @if ($discussion->messages->first())
+                            {{ $discussion->messages->first()->message }}
+                        @endif
+                    </div>
                 </div>
-            </div>
         </li>
         @endforeach
     </ul>

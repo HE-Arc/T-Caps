@@ -13,65 +13,37 @@
         </span>
 
         <x-modal name="create-file-modal" focusable>
-            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm">
+            <form method="post" class="p-6" x-data="capsuleForm()" id="create-file-modal-form" @submit.prevent="submitForm" enctype="multipart/form-data" x-on:click.away="$dispatch('close'); document.getElementById('create-file-modal-form').reset(); document.getElementById('file-info').innerHTML = '<p class=&quot;text-gray-300 font-medium&quot;>Glissez et déposez votre fichier ici ou</p><p class=&quot;text-blue-400 underline&quot;>cliquez pour sélectionner un fichier</p>';">
                 @csrf
                 <input type="hidden" id="discussion-id" name="discussion_id" value="CHAT_ID">
                 <h3 class="text-lg font-semibold text-gray-300 mb-5">Créer une capsule</h3>
-                <!-- Champ pour le fichier de la capsule -->
-                <div class="flex items-center justify-center bg-gray-800">
-                    <div class="border-dashed border-4 border-gray-500 rounded-lg p-8 bg-gray-900 hover:bg-gray-700 transition duration-300" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
-                        <label for="file" class="flex flex-col items-center justify-center cursor-pointer">
-                            <div id="file-info">
+                <!-- Field for the file of the capsule -->
+                <div class="flex items-center justify-center h-full w-full">
+                    <div class="border-dashed border-4 border-gray-500 rounded-lg bg-gray-900 hover:bg-gray-700 transition duration-300" ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
+                        <label for="file" class="flex flex-col items-center justify-center cursor-pointer h-full w-full">
+                            <div id="file-info" class="text-center mt-6">
                                 <p class="text-gray-300 font-medium">Glissez et déposez votre fichier ici ou</p>
                                 <p class="text-blue-400 underline">cliquez pour sélectionner un fichier</p>
                             </div>
                         </label>
-                        <input id="file" name="file" type="file" class="hidden" onchange="updateFileName()" x-model="file">
+                        <input id="file" name="file" type="file" class="inset-0 opacity-0 cursor-pointer" accept=".jpeg,.png,.jpg,.gif,.mp3,.mp4,.mov" onchange="updateFileName()" x-model="file" required>
                     </div>
                 </div>
-                <script>
-                    function updateFileName() {
-                        const fileInput = document.getElementById('file');
-                        const fileInfo = document.getElementById('file-info');
-
-                        if (fileInput.files.length > 0) {
-                            const fileName = fileInput.files[0].name;
-                            fileInfo.innerHTML = `<p class='text-green-400 font-medium'>Fichier sélectionné : ${fileName}</p>`;
-                        }
-                    }
-
-                    function handleDragOver(event) {
-                        event.preventDefault();
-                    }
-
-                    function handleDrop(event) {
-                        event.preventDefault();
-                        const fileInput = document.getElementById('file');
-                        const fileInfo = document.getElementById('file-info');
-
-                        if (event.dataTransfer.files.length > 0) {
-                            const file = event.dataTransfer.files[0];
-                            fileInput.files = event.dataTransfer.files;
-                            fileInfo.innerHTML = `<p class='text-green-400 font-medium'>Fichier sélectionné : ${file.name}</p>`;
-                        }
-                    }
-                </script>
-                <!-- Champ pour le message de la capsule -->
+                <!-- Field for the message of the capsule -->
                 <div class="mb-4">
                     <x-input-label for="message" value="Message" />
-                    <x-text-input id="message" name="message" type="text" class="block w-full mt-1"
-                        x-model="chatMessage" />
+                    <x-text-input id="message" name="message" type="text" class="block w-full mt-1" x-model="chatMessage" required />
                     <div class="mb-4">
                         <x-input-label for="date-time" value="Date et heure d'ouverture de la capsule (laisser vide pour ouverture instantanée)" />
                         <input type="datetime-local" id="date-time" name="date_time" class="block w-full mt-1 border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" />
                     </div>
                 </div>
-                <!-- Boutons d'action -->
+                <!-- Action buttons -->
                 <div class="mt-6 flex justify-end">
-                    <x-secondary-button x-on:click="$dispatch('close')">
+                    <x-secondary-button x-on:click="$dispatch('close'); document.getElementById('create-file-modal-form').reset(); document.getElementById('file-info').innerHTML = '<p class=&quot;text-gray-300 font-medium&quot;>Glissez et déposez votre fichier ici ou</p><p class=&quot;text-blue-400 underline&quot;>cliquez pour sélectionner un fichier</p>';">
                         Annuler
                     </x-secondary-button>
-                    <x-primary-button class="ml-3" x-on:click.prevent="submitForm">
+                    <x-primary-button class="ml-3" type="submit">
                         Envoyer la capsule
                     </x-primary-button>
                 </div>
@@ -79,48 +51,3 @@
         </x-modal>
     </div>
 </div>
-
-<script>
-    function capsuleForm() {
-        return {
-            chatMessage: '',
-            file: null,
-            submitForm() {
-                event.preventDefault();
-                // Récupérer dynamiquement l'ID de la discussion depuis le champ caché
-                const discussionId = document.getElementById('discussion-id').value;
-
-                // Créer l'objet FormData avec les données du formulaire
-                const formData = new FormData(document.getElementById('create-file-modal-form'));
-
-                // Effectuer la requête AJAX avec `fetch`
-                fetch(`/chat/${discussionId}/capsule`, {
-                        method: 'POST',
-                        body: formData,
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message.id) {
-                            // Fermer le modal et réinitialiser le formulaire
-                            this.chatMessage = '';
-                            this.file = null;
-                            document.getElementById('file-info').innerHTML = `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
-                            document.getElementById('date-time').value = '';
-                            this.$dispatch('close');
-                        } else {
-                            console.log(data)
-                            alert('Erreur lors de l\'envoi de la capsule');
-                        }
-                    })
-                    .catch(error => {
-                        alert('Erreur lors de l\'envoi');
-                        console.error(error);
-                    });
-            }
-        };
-    }
-</script>
