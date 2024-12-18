@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
  */
 class ChatController extends Controller
 {
-    /** 
+    /**
      * Show the dashboard with the list of discussions and pass the friends list to the view.
      */
     public function index()
@@ -23,9 +23,8 @@ class ChatController extends Controller
         // Get the list of discussions with the last message and the members
         $discussions = auth()->user()->chats()
             ->with(['messages' => function ($query) {
-                $query->latest()->limit(1);
+                $query->latest()->limit(1); // Last message
             }, 'members'])
-            ->latest()
             ->get()
             ->map(function ($discussion) {
                 // We check if the discussion is a private chat
@@ -43,8 +42,13 @@ class ChatController extends Controller
                     $discussion->discussionPicture = asset('source/assets/images/group.png');
                 }
 
+                // Add `lastMessageCreatedAt` field for sorting
+                $discussion->lastMessageCreatedAt = $discussion->messages->first()->created_at ?? null;
+
                 return $discussion;
-            });
+            })
+            ->sortByDesc('lastMessageCreatedAt') // Sort by last message date
+            ->values(); // Reindex the collection
 
         // Get the list of friends (accepted friendships)
         $friends = Friendship::where(function ($query) {
@@ -65,9 +69,10 @@ class ChatController extends Controller
         ]);
     }
 
+
     /**
      * Return the messages of a discussion (with the closed capsules and opened capsules)
-     * 
+     *
      * @param int $chatId The ID of the discussion
      * @return \Illuminate\Http\JsonResponse A JSON response containing the array of messages.
      */
@@ -124,7 +129,7 @@ class ChatController extends Controller
 
     /**
      * Store a new message sent by the user in a specific chat.
-     * 
+     *
      * @param \Illuminate\Http\Request $request The request containing the message content.
      * @param int $chatId The ID of the chat.
      * @return \Illuminate\Http\JsonResponse A JSON response containing the message (or an error).
@@ -170,7 +175,7 @@ class ChatController extends Controller
 
     /**
      * Store a new capsule sent by the user in a specific chat.
-     * 
+     *
      * @param \Illuminate\Http\Request $request The request containing the message content and the media file.
      * @param int $chatId The ID of the chat.
      * @return \Illuminate\Http\JsonResponse A JSON response containing the capsule (or an error).
@@ -210,7 +215,7 @@ class ChatController extends Controller
 
     /**
      * Store a new chat with the name and the friends selected by the user.
-     * 
+     *
      * @param \Illuminate\Http\Request $request The request containing the chat name and the friends.
      * @return \Illuminate\Http\RedirectResponse A redirect response to the dashboard with a success message.
      */
@@ -238,7 +243,7 @@ class ChatController extends Controller
 
     /**
      * Leave a chat (remove the user from the chat).
-     * 
+     *
      * @param int $chatId The ID of the chat.
      * @return \Illuminate\Http\JsonResponse A JSON response with a message.
      */
@@ -257,13 +262,13 @@ class ChatController extends Controller
 
     /**
      * Delete a message from a discussion.
-     * 
+     *
      * @param int $discussionId The ID of the discussion.
      * @param int $messageId The ID of the message.
      * @return \Illuminate\Http\JsonResponse A JSON response with a message (or an error).
      */
     public function deleteMessage($discussionId, $messageId)
-    {   
+    {
         $message = Message::where('id', $messageId)->where('chat_id', $discussionId)->first();
 
         if (!$message) {
@@ -275,13 +280,13 @@ class ChatController extends Controller
         }
         //Check if the message has a corresponding capsule
         if (Message::find($message->id + 10000000))
-        {   
+        {
             //If the message has a corresponding capsule, we delete the capsule and the message
             $capsule = Message::where('id', $messageId + 10000000)->where('chat_id', $discussionId)->first();
             if ($message->media_url) {
                 $mediaPath = public_path('source/assets/media/' . $message->media_url);
                 if (file_exists($mediaPath)) {
-                    unlink($mediaPath); 
+                    unlink($mediaPath);
                 }
             }
             $capsule->delete();
@@ -293,7 +298,7 @@ class ChatController extends Controller
             if ($message->media_url) {
                 $mediaPath = public_path("/source/media/" . $message->media_url);
                 if (file_exists($mediaPath)) {
-                    unlink($mediaPath); 
+                    unlink($mediaPath);
                 }
             }
             $message->delete();
