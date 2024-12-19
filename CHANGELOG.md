@@ -1,6 +1,32 @@
 # Release Notes
 
-## [Unreleased](https://github.com/laravel/laravel/compare/v11.1.5...11.x)
+## [Unreleased](https://github.com/laravel/laravel/compare/V1.0...main)
+
+## [V1.0](https://github.com/laravel/laravel/compare/v11.1.5...V1.0) - 2024-12-19
+
+### 🚀 Discover T-Caps V1.0
+
+An innovative platform to connect, share, and preserve your memories, available now:
+🌐 [Access T-Caps](https://tcaps.k8s.ing.he-arc.ch/)
+
+#### Key Features
+
+##### 🌟 Social Network
+
+- Add and manage friends effortlessly (with blocking option).
+
+##### 💬 Enhanced Discussions
+
+- Create one-on-one or group conversations.
+- Send and delete messages seamlessly.
+
+##### 📂 Multimedia Sharing
+
+- Share files and media to enrich your discussions.
+
+##### ⏳ Time Capsules
+
+- Create "Time Capsules" with media to capture and share your most precious moments.
 
 ## [v11.1.5](https://github.com/laravel/laravel/compare/v11.1.4...v11.1.5) - 2024-08-14
 
