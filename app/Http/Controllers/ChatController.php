@@ -188,6 +188,29 @@ class ChatController extends Controller
             'message' => 'required|string'
         ]);
 
+        $chat = Chat::with('members')->find($chatId);
+
+        if (!$chat || !$chat->members->contains(auth()->id())) {
+            return response()->json(['error' => 'Chat not found or unauthorized.'], 404);
+        }
+
+        // Logic to check if the user is blocked by the other member or if the other member is blocked
+        if ($chat->members->count() == 2) {
+            $otherMember = $chat->members->firstWhere('id', '!=', auth()->id());
+
+            $friendship = Friendship::where(function ($query) use ($otherMember) {
+                $query->where('user_id', auth()->id())
+                    ->where('friend_id', $otherMember->id);
+            })->orWhere(function ($query) use ($otherMember) {
+                $query->where('user_id', $otherMember->id)
+                    ->where('friend_id', auth()->id());
+            })->first();
+
+            if ($friendship && $friendship->isBlocked()) {
+                return response()->json(['error' => 'You are blocked by this user or you blocked this user.']);
+            }
+        }
+
         // Check if the file is valid
         if ($request->hasFile('file') && $request->file('file')->isValid()) {
             $media = $request->file('file');

@@ -12,6 +12,7 @@
         <div id="chat-area" class="flex-1 background-app flex flex-col h-full relative hidden">
             <x-messaging.header />
             <x-messaging.messages />
+            <div id="error-message" style="display: none; color: red; margin-top: 10px;"></div>
             <x-messaging.chatbar />
         </div>
     </div>
@@ -48,6 +49,11 @@
             newMessages = [];
             deletedMessages = [];
             messagesContainer.innerHTML = '';
+
+            // Reset the message content and the error message
+            let errorMessage = document.getElementById('error-message');
+            document.getElementById('message-content').value = '';
+            errorMessage.style.display = 'none'; 
 
             // Update the hidden input with the chat ID
             const hiddenInput = document.getElementById('discussion-id');
@@ -291,6 +297,19 @@
                 body: JSON.stringify({
                     message: messageContent
                 })
+            })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                const errorMessage = document.getElementById('error-message');
+                if (data.error) {
+                    errorMessage.textContent = data.error;
+                    errorMessage.style.display = 'block'; 
+                } else {
+                    document.getElementById('message-content').value = '';
+                    errorMessage.style.display = 'none'; 
+                }
             });
             document.getElementById('message-content').value = '';
         } catch (error) {
@@ -546,7 +565,7 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        if (data.message.id) {
+                        if (data.message && data.message.id) {
                             // Close the modal and reset the form
                             this.chatMessage = '';
                             this.file = null;
@@ -555,8 +574,22 @@
                             document.getElementById('date-time').value = '';
                             this.$dispatch('close');
                         } else {
-                            console.log(data)
-                            alert('Erreur lors de l\'envoi de la capsule');
+                            const errorMessage = document.getElementById('error-message');
+                            if (data.error == "You are blocked by this user or you blocked this user.") {
+                                errorMessage.textContent = data.error;
+                                errorMessage.style.display = 'block'; 
+                                // Close the modal and reset the form
+                                this.chatMessage = '';
+                                this.file = null;
+                                document.getElementById('file-info').innerHTML =
+                                    `<p class='text-gray-300 font-medium'>Glissez et déposez votre fichier ici ou</p><p class='text-blue-400 underline'>cliquez pour sélectionner un fichier</p>`;
+                                document.getElementById('date-time').value = '';
+                                this.$dispatch('close');
+                            } else {
+                                document.getElementById('message-content').value = '';
+                                errorMessage.style.display = 'none'; 
+                                alert('Erreur lors de l\'envoi');
+                            }
                         }
                     })
                     .catch(error => {
